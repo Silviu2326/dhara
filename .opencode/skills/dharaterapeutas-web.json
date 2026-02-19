@@ -1,0 +1,181 @@
+# Dharaterapeutas - Skill de Desarrollo Web
+
+## Ubicación de Archivos
+
+**IMPORTANTE**: Todas las páginas y componentes de clientes se deben crear en:
+- `src/clientes/`
+
+Estructura sugerida:
+```
+src/clientes/
+├── pages/
+│   ├── HomePage.jsx
+│   ├── CitasPage.jsx
+│   └── ...
+└── components/
+    └── ...
+```
+
+---
+
+## Identidad de Marca
+
+### Paleta de Colores
+
+| Nombre | Hexadecimal | Uso |
+|--------|-------------|-----|
+| **sage** | `#8CA48F` | Verde Salvia - Color principal, botones primarios, iconos activos |
+| **deep** | `#2D3A4A` | Azul Profundo - Textos principales, encabezados |
+| **sand** | `#F3EEE9` | Arena Cálida - Fondos principales de la app |
+| **sand-light** | `#FEF7EF` | Arena Clara - Fondos secundarios |
+| **muted** | `#A2B2C2` | Gris Azulado - Textos secundarios, placeholders, iconos |
+| **rose** | `#C9A2A6` | Rosa Malva - Estadísticas, información terciaria |
+| **terracotta** | `#D58E6E` | Naranja Terracota - Estrellas, acentos, prioridades |
+| **error** | `#FF6B6B` | Rojo - Errores, alertas |
+| **border** | `#E0E0E0` | Gris claro - Bordes |
+| **white** | `#FFFFFF` | Blanco - Fondos de tarjetas |
+
+---
+
+## Sistema de Diseño
+
+### Colores Tailwind (tailwind.config.js)
+
+```javascript
+colors: {
+  sage: '#8CA48F',      // Verde Salvia
+  sand: '#F3EEE9',      // Arena Cálida
+  deep: '#2D3A4A',      // Azul Profundo
+  muted: '#A2B2C2',     // Gris Azulado
+  rose: '#C9A2A6',      // Rosa Malva
+  terracotta: '#D58E6E', // Naranja Terracota
+}
+```
+
+### Fondo Principal
+- `bg-sand` - Fondo general de la aplicación
+
+---
+
+## Componentes
+
+### Button
+
+```jsx
+// Variantes disponibles
+primary: 'bg-sage text-white hover:bg-sage/90'
+secondary: 'bg-sand text-deep hover:bg-sand/80 border border-sage/20'
+outline: 'border border-sage text-sage hover:bg-sage hover:text-white'
+ghost: 'text-sage hover:bg-sage/10'
+danger: 'bg-red-600 text-white hover:bg-red-700'
+
+// Tamaños
+sm: 'px-3 py-1.5 text-sm'
+md: 'px-4 py-2 text-sm'
+lg: 'px-6 py-3 text-base'
+```
+
+### Card
+
+```jsx
+// Estilo base
+className="bg-white rounded-xl shadow-sm border border-gray-100 p-6"
+```
+
+### Layout
+
+```jsx
+// DashboardLayout
+<div className="min-h-screen bg-sand">
+  <Navbar />
+  <Sidebar />
+  <main className="pt-16 ml-64 p-6">
+```
+
+---
+
+## Navegación Web
+
+| Ruta | Componente | Descripción |
+|------|------------|-------------|
+| `/` | HomePage | Página principal |
+| `/login` | Login | Inicio de sesión |
+| `/dashboard` | Dashboard | Panel de control |
+| `/perfil` | Profile | Perfil de usuario |
+| `/citas` | Appointments | Listado de citas |
+| `/citas/:id` | AppointmentDetail | Detalle de cita |
+| `/terapeutas` | ExploreTherapists | Explorar terapeutas |
+| `/terapeutas/:id` | ProfessionalProfile | Perfil profesional |
+| `/favoritos` | Favorites | Favoritos |
+| `/resenas` | Reviews | Reseñas |
+| `/documentos` | Documents | Documentos |
+| `/notificaciones` | Notifications | Notificaciones |
+| `/agenda` | Agenda | Agenda |
+| `/chat` | Chat | Chat |
+| `/privacidad` | Privacy | Privacidad |
+| `/ayuda` | HelpCenter | Centro de ayuda |
+| `/configuracion` | Settings | Configuración |
+| `/pagos` | PaymentHistory | Historial de pagos |
+| `/diccionario` | Dictionary | Diccionario |
+
+---
+
+## Iconos
+
+- **Ionicons** - Usar para web: `react-icons/io5`
+- Tamaños típicos: 16, 18, 20, 24px
+
+---
+
+## Patrones de Estilo
+
+### Inputs
+```jsx
+className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-sage focus:border-transparent"
+```
+
+### Listas
+```jsx
+className="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-100"
+```
+
+### Badges/Tags
+```jsx
+className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-sage/10 text-sage"
+```
+
+### Estados de Cita
+- Completada: `#8CA48F` (sage)
+- Pendente: `#D58E6E` (terracotta)
+- Cancelada: `#FF6B6B` (error)
+- En Proceso: `#A2B2C2` (muted)
+
+---
+
+## Responsive
+
+- Mobile: < 640px
+- Tablet: 640px - 1024px
+- Desktop: > 1024px
+- Sidebar: `ml-264` cuando abierto
+
+---
+
+## Animaciones
+
+```css
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+```

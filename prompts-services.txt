@@ -1,0 +1,327 @@
+Implementa la segunda parte de la arquitectura de SERVICES: configuraciones, utilidades y hooks personalizados para completar la infraestructura de servicios del frontend.
+
+**CONFIGURACIÓN BASE DE SERVICIOS:**
+
+**TAREAS:**
+1. Crear `src/services/config/apiClient.js` - Cliente axios principal
+2. Crear `src/services/config/endpoints.js` - Configuración de URLs
+3. Crear `src/services/config/constants.js` - Constantes de la aplicación
+4. Crear `src/services/utils/` con todas las utilidades
+5. Crear `src/services/hooks/` con todos los custom hooks
+6. Crear `src/services/index.js` como punto de entrada central
+
+**ARCHIVO PRINCIPAL DE CONFIGURACIÓN:**
+```javascript
+// src/services/config/apiClient.js
+import axios from 'axios';
+import { getToken, setToken, removeToken } from '../utils/tokenManager';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Request interceptor para agregar token automáticamente
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = getToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor para manejar refresh token
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (refreshToken) {
+          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
+            refreshToken
+          });
+
+          const { token } = response.data;
+          setToken(token);
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+
+          return apiClient(originalRequest);
+        }
+      } catch (refreshError) {
+        removeToken();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default apiClient;
+```
+
+**ENDPOINTS CENTRALIZADOS:**
+```javascript
+// src/services/config/endpoints.js
+export const ENDPOINTS = {
+  // Auth endpoints
+  AUTH: {
+    LOGIN: '/auth/login',
+    REGISTER: '/auth/register',
+    LOGOUT: '/auth/logout',
+    REFRESH: '/auth/refresh',
+    FORGOT_PASSWORD: '/auth/forgot-password',
+    RESET_PASSWORD: '/auth/reset-password',
+    CHANGE_PASSWORD: '/auth/change-password',
+    ME: '/auth/me',
+  },
+
+  // Client endpoints
+  CLIENTS: {
+    BASE: '/clients',
+    STATS: '/clients/stats',
+    TAGS: '/clients/tags',
+    BULK: '/clients/bulk',
+    AVATAR: (id) => `/clients/${id}/avatar`,
+    SUMMARY: (id) => `/clients/${id}/summary`,
+  },
+
+  // Booking endpoints
+  BOOKINGS: {
+    BASE: '/bookings',
+    STATS: '/bookings/stats',
+    CALENDAR: '/bookings/calendar',
+    AVAILABILITY: '/bookings/availability',
+    RESCHEDULE: (id) => `/bookings/${id}/reschedule`,
+    CANCEL: (id) => `/bookings/${id}/cancel`,
+  },
+
+  // [Continuar con todos los demás endpoints...]
+};
+```
+
+**UTILIDADES PRINCIPALES:**
+
+1. **src/services/utils/errorHandler.js**:
+```javascript
+export class APIError extends Error {
+  constructor(message, status, data) {
+    super(message);
+    this.status = status;
+    this.data = data;
+    this.name = 'APIError';
+  }
+}
+
+export const handleAPIError = (error) => {
+  if (error.response) {
+    const { status, data } = error.response;
+    const message = data?.message || `HTTP Error ${status}`;
+    return new APIError(message, status, data);
+  }
+
+  if (error.request) {
+    return new APIError('Network Error', 0, null);
+  }
+
+  return new APIError(error.message, 0, null);
+};
+```
+
+2. **src/services/utils/validators.js**:
+```javascript
+export const validators = {
+  email: (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email),
+  phone: (phone) => /^[\+]?[1-9][\d]{0,15}$/.test(phone),
+  password: (password) => password.length >= 8,
+  required: (value) => value !== null && value !== undefined && value !== '',
+};
+```
+
+3. **src/services/utils/formatters.js**:
+```javascript
+export const formatters = {
+  currency: (amount, currency = 'USD') =>
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency
+    }).format(amount),
+
+  date: (date, format = 'short') =>
+    new Intl.DateTimeFormat('en-US', {
+      dateStyle: format
+    }).format(new Date(date)),
+
+  time: (time) =>
+    new Intl.DateTimeFormat('en-US', {
+      timeStyle: 'short'
+    }).format(new Date(time)),
+};
+```
+
+**CUSTOM HOOKS PRINCIPALES:**
+
+1. **src/services/hooks/useAuth.js**:
+```javascript
+import { useState, useEffect, createContext, useContext } from 'react';
+import authService from '../api/authService';
+
+const AuthContext = createContext();
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = async () => {
+    try {
+      if (authService.isAuthenticated()) {
+        const userData = await authService.getProfile();
+        setUser(userData);
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      console.error('Auth check failed:', error);
+      logout();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async (credentials) => {
+    setLoading(true);
+    try {
+      const response = await authService.login(credentials);
+      setUser(response.user);
+      setIsAuthenticated(true);
+      return response;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    await authService.logout();
+    setUser(null);
+    setIsAuthenticated(false);
+  };
+
+  const value = {
+    user,
+    loading,
+    isAuthenticated,
+    login,
+    logout,
+    register: authService.register,
+    updateProfile: authService.updateProfile,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+```
+
+2. **src/services/hooks/useApi.js**:
+```javascript
+import { useState, useEffect, useCallback } from 'react';
+import { handleAPIError } from '../utils/errorHandler';
+
+export const useApi = (apiFunction, immediate = false) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const execute = useCallback(async (...args) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await apiFunction(...args);
+      setData(result);
+      return result;
+    } catch (err) {
+      const apiError = handleAPIError(err);
+      setError(apiError);
+      throw apiError;
+    } finally {
+      setLoading(false);
+    }
+  }, [apiFunction]);
+
+  useEffect(() => {
+    if (immediate) {
+      execute();
+    }
+  }, [execute, immediate]);
+
+  return { data, loading, error, execute, refetch: execute };
+};
+```
+
+**ARCHIVO INDEX PRINCIPAL:**
+```javascript
+// src/services/index.js
+// API Services
+export { default as authService } from './api/authService';
+export { default as clientService } from './api/clientService';
+export { default as bookingService } from './api/bookingService';
+// [Export all 27 services...]
+
+// Hooks
+export { useAuth, AuthProvider } from './hooks/useAuth';
+export { useApi } from './hooks/useApi';
+export { useLocalStorage } from './hooks/useLocalStorage';
+export { useDebounce } from './hooks/useDebounce';
+export { usePagination } from './hooks/usePagination';
+
+// Utils
+export { formatters } from './utils/formatters';
+export { validators } from './utils/validators';
+export { handleAPIError, APIError } from './utils/errorHandler';
+export { cache } from './utils/cache';
+
+// Config
+export { ENDPOINTS } from './config/endpoints';
+export { default as apiClient } from './config/apiClient';
+```
+
+**IMPLEMENTAR:**
+- Todos los archivos de configuración
+- Todas las utilidades mencionadas
+- Todos los custom hooks
+- Sistema de cache local
+- Token manager
+- Interceptors de axios
+- Error boundaries para React
+- Tipos TypeScript si es necesario
+
+Crea una arquitectura robusta y escalable que soporte toda la aplicación.

@@ -1,0 +1,902 @@
+Necesito que reemplaces todos los datos falsos (mock data) de la funcionalidad de planes de suscripción por datos realistas y profesionales para una plataforma de terapeutas. Actualmente hay datos de prueba que necesitan ser actualizados con información más realista y profesional.
+
+ARCHIVOS QUE DEBES EDITAR (incluye @ al principio de cada ruta):
+
+@src/features/plansSubscription/PlansSubscription.page.jsx
+@src/features/plansSubscription/plansSubscription.api.js
+@src/services/api/subscriptionService.js
+@src/services/api/pricingPackageService.js
+
+TAREAS ESPECÍFICAS:
+
+1. **PlansSubscription.page.jsx (líneas 37-156)**:
+   - Reemplaza los mockPlans con planes terapéuticos más realistas y variados
+   - Incluye planes para diferentes especialidades: ansiedad, depresión, terapia de pareja, trauma, TDAH, terapia familiar, duelo, adicciones
+   - Usa nombres profesionales y técnicas terapéuticas reales (TCC, EMDR, DBT, ACT, etc.)
+   - Actualiza mockClients con perfiles de clientes más realistas
+   - Asegúrate de que los datos sean coherentes entre planes y clientes
+
+2. **plansSubscription.api.js**:
+   - Reemplaza las funciones TODO con implementaciones más realistas
+   - Agrega datos de ejemplo para getCurrentPlan() que retorne información detallada
+   - Implementa getAvailablePlans() con una lista de planes de suscripción realistas
+   - Mejora upgradePlan() y cancelPlan() con respuestas más detalladas
+
+3. **subscriptionService.js**:
+   - Revisa y actualiza los planLimits (líneas 58-95) con límites más realistas para una plataforma de terapeutas
+   - Actualiza las features incluidas en cada plan para que sean relevantes para terapeutas
+   - Ajusta los precios y límites de almacenamiento, videoconferencias, etc.
+
+4. **pricingPackageService.js**:
+   - Revisa las características incluidas (líneas 53-64) y añade features relevantes para terapeutas
+   - Actualiza los tipos de paquetes para que sean apropiados para servicios terapéuticos
+   - Ajusta los tipos de descuento para que sean realistas para este tipo de plataforma
+
+REQUISITOS IMPORTANTES:
+
+- Usa terminología profesional de psicología y terapia
+- Los planes deben incluir técnicas terapéuticas reales (no inventadas)
+- Los precios deben ser realistas para el mercado español
+- Los nombres de clientes deben sonar naturales en español
+- Mantén la estructura y funcionalidad existente, solo cambia los datos
+- Asegúrate de que todos los IDs y referencias entre datos sean consistentes
+- Los planes deben tener duraciones realistas (8-24 semanas típicamente)
+- Incluye objetivos terapéuticos específicos y medibles
+
+ESPECIALIDADES A INCLUIR:
+- Ansiedad y trastornos de pánico
+- Depresión y trastornos del estado de ánimo
+- Terapia de pareja y familiar
+- Trauma y TEPT
+- TDAH en adultos
+- Adicciones y dependencias
+- Duelo y pérdida
+- Trastornos alimentarios
+- Estrés y burnout
+
+Por favor, implementa estos cambios manteniendo la coherencia profesional y realismo en todos los datos.
+
+---
+
+Necesito que integres completamente las APIs existentes en la página de disponibilidad (availability). Actualmente la página usa datos mock y necesita conectarse con los servicios reales que ya están implementados.
+
+ARCHIVOS QUE DEBES EDITAR (incluye @ al principio de cada ruta):
+
+@src/features/availability/Availability.page.jsx
+@src/features/availability/availability.api.js
+@src/features/availability/components/AvailabilityCalendar.jsx
+@src/features/availability/components/SlotModal.jsx
+@src/features/availability/components/AbsenceModal.jsx
+@src/features/availability/components/SyncModal.jsx
+
+SERVICIOS DISPONIBLES PARA USAR:
+- @src/services/api/availabilityService.js (ya implementado completamente)
+- @src/services/api/bookingService.js
+- @src/services/api/workLocationService.js
+
+TAREAS ESPECÍFICAS:
+
+1. **availability.api.js**:
+   - Reemplaza todas las funciones TODO con implementaciones reales
+   - Conecta con availabilityService para:
+     * getAvailability() - obtener horarios disponibles
+     * updateAvailability() - actualizar horarios
+     * getBlockedTimes() - obtener bloques no disponibles
+   - Añade funciones adicionales necesarias:
+     * createTimeBlock(), updateTimeBlock(), deleteTimeBlock()
+     * getAvailabilityByDateRange()
+     * syncExternalCalendar()
+
+2. **Availability.page.jsx**:
+   - Elimina todos los datos mock (líneas 14-93)
+   - Implementa useEffect para cargar datos reales usando las APIs
+   - Reemplaza setState con llamadas a API para:
+     * Cargar slots de disponibilidad
+     * Cargar citas existentes
+     * Cargar ausencias/bloqueos
+     * Cargar estadísticas de ocupación
+   - Implementa manejo de errores y loading states
+   - Conecta todas las funciones de CRUD con las APIs
+
+3. **AvailabilityCalendar.jsx**:
+   - Integra con availabilityService para mostrar datos reales
+   - Implementa drag & drop que llame a las APIs para actualizar horarios
+   - Conecta eventos de calendario con bookingService
+
+4. **SlotModal.jsx**:
+   - Conecta formulario de creación/edición con createTimeBlock/updateTimeBlock APIs
+   - Integra con workLocationService para cargar ubicaciones reales
+   - Implementa validación con la API (conflictos de horarios)
+
+5. **AbsenceModal.jsx**:
+   - Conecta con availabilityService para crear/editar ausencias
+   - Implementa tipos de ausencia del servicio (vacation, sick_leave, personal, training)
+
+6. **SyncModal.jsx**:
+   - Conecta con funciones de sincronización de calendarios externos
+   - Implementa estados de sincronización del availabilityService
+   - Maneja errores y conflictos de sincronización
+
+REQUISITOS TÉCNICOS:
+
+- Usa async/await para todas las llamadas a API
+- Implementa loading states apropiados durante las operaciones
+- Maneja errores de API con mensajes user-friendly
+- Mantén consistencia en el manejo de estados entre componentes
+- Implementa validación client-side antes de enviar a API
+- Usa el sistema de cache del availabilityService cuando sea apropiado
+- Mantén la funcionalidad existente del UI mientras conectas con APIs reales
+
+FUNCIONALIDADES A IMPLEMENTAR:
+
+- Carga automática de horarios al entrar en la página
+- Actualización en tiempo real de la disponibilidad
+- Sincronización con calendarios externos (Google, Outlook)
+- Gestión de conflictos de horarios
+- Notificaciones de cambios en disponibilidad
+- Exportación de horarios
+- Vista de ocupación por semana/mes
+- Gestión de ubicaciones múltiples
+
+VALIDACIONES REQUERIDAS:
+
+- Verificar que no haya solapamiento de horarios
+- Validar rangos de fechas y horas
+- Comprobar disponibilidad antes de crear slots
+- Verificar permisos de ubicación
+- Validar formatos de recurrencia
+
+Por favor, mantén la interfaz de usuario existente pero conecta toda la funcionalidad con las APIs reales disponibles.
+
+---
+
+Necesito que integres completamente las APIs existentes en la página de gestión de clientes (clients). Actualmente la página usa datos mock y necesita conectarse con los servicios reales que ya están implementados para una gestión completa de clientes.
+
+ARCHIVOS QUE DEBES EDITAR (incluye @ al principio de cada ruta):
+
+@src/features/clients/Clients.page.jsx
+@src/features/clients/clients.api.js
+@src/features/clients/components/ClientsTable.jsx
+@src/features/clients/components/ClientDrawer.jsx
+@src/features/clients/components/ClientDetailPage.jsx
+@src/features/clients/components/ClientProfileCard.jsx
+@src/features/clients/components/ClientSessionsTable.jsx
+@src/features/clients/components/ClientPaymentsTable.jsx
+@src/features/clients/components/PrivateNotesEditor.jsx
+@src/features/clients/components/NotesHistory.jsx
+@src/features/clients/components/UploadDocModal.jsx
+@src/features/clients/components/DeleteClientDialog.jsx
+@src/features/clients/components/BulkActionsModal.jsx
+
+SERVICIOS DISPONIBLES PARA USAR:
+- @src/services/api/clientService.js (gestión completa de clientes)
+- @src/services/api/sessionNoteService.js (notas de sesión)
+- @src/services/api/documentService.js (gestión de documentos)
+- @src/services/api/clientPlanProgressService.js (progreso de planes)
+- @src/services/api/bookingService.js (citas y sesiones)
+- @src/services/api/paymentService.js (pagos y facturación)
+- @src/services/api/reviewService.js (reseñas y valoraciones)
+- @src/services/api/chatService.js (mensajería con clientes)
+
+TAREAS ESPECÍFICAS:
+
+1. **clients.api.js**:
+   - Reemplaza todas las funciones TODO con implementaciones reales
+   - Conecta con clientService para:
+     * getClients() - listar clientes con filtros
+     * getClientById() - obtener cliente específico
+     * createClient(), updateClient(), deleteClient()
+   - Integra con sessionNoteService para:
+     * updateClientNotes() - actualizar notas privadas
+     * getClientHistory() - historial de sesiones
+   - Añade funciones adicionales:
+     * uploadClientDocument(), getClientDocuments()
+     * getClientPayments(), getClientStatistics()
+     * sendClientMessage(), getClientMessages()
+
+2. **Clients.page.jsx**:
+   - Elimina todos los datos mock (líneas 14-120)
+   - Implementa useEffect para cargar datos reales usando las APIs
+   - Reemplaza setState con llamadas a API para:
+     * Cargar lista de clientes paginada
+     * Filtrar y buscar clientes
+     * Obtener estadísticas de clientes
+     * Gestionar acciones masivas
+   - Implementa manejo de errores y loading states
+   - Conecta funciones de exportación con datos reales
+
+3. **ClientsTable.jsx**:
+   - Conecta con clientService para mostrar datos reales
+   - Implementa paginación server-side
+   - Integra ordenamiento y filtros con la API
+   - Conecta acciones de fila (editar, eliminar, ver detalles)
+
+4. **ClientDrawer.jsx y ClientDetailPage.jsx**:
+   - Integra con clientService para cargar/actualizar perfil completo
+   - Conecta con sessionNoteService para mostrar historial
+   - Usa documentService para gestión de archivos
+   - Implementa edición en tiempo real con validación
+
+5. **ClientProfileCard.jsx**:
+   - Conecta con clientService para datos del perfil
+   - Integra estadísticas reales (sesiones, pagos, documentos)
+   - Muestra progreso de planes con clientPlanProgressService
+
+6. **ClientSessionsTable.jsx**:
+   - Conecta con bookingService para mostrar sesiones reales
+   - Integra con sessionNoteService para mostrar notas
+   - Implementa filtros por fecha y estado de sesión
+
+7. **ClientPaymentsTable.jsx**:
+   - Conecta con paymentService para mostrar historial real
+   - Implementa filtros y búsqueda de pagos
+   - Integra con facturación y estados de pago
+
+8. **PrivateNotesEditor.jsx y NotesHistory.jsx**:
+   - Conecta completamente con sessionNoteService
+   - Implementa autoguardado de notas privadas
+   - Maneja encriptación y niveles de confidencialidad
+   - Implementa historial y versionado de notas
+
+9. **UploadDocModal.jsx**:
+   - Conecta con documentService para subida real de archivos
+   - Implementa validación de tipos y tamaños
+   - Maneja categorización y metadatos de documentos
+   - Integra con sistema de permisos y confidencialidad
+
+10. **DeleteClientDialog.jsx y BulkActionsModal.jsx**:
+    - Conecta con clientService para eliminación segura
+    - Implementa validaciones de dependencias
+    - Maneja acciones masivas con confirmación
+    - Integra auditoría y logs de cambios
+
+REQUISITOS TÉCNICOS:
+
+- Implementa paginación server-side para listas grandes de clientes
+- Usa async/await para todas las llamadas a API
+- Implementa loading skeletons durante cargas
+- Maneja errores específicos (cliente no encontrado, sin permisos, etc.)
+- Implementa búsqueda y filtros en tiempo real con debounce
+- Usa el sistema de cache apropiadamente para mejorar rendimiento
+- Implementa validaciones client-side antes de enviar a API
+- Maneja la encriptación automática de datos sensibles
+
+FUNCIONALIDADES A IMPLEMENTAR:
+
+- Gestión completa CRUD de clientes
+- Búsqueda avanzada con múltiples criterios
+- Filtros por estado, etiquetas, fechas, terapeuta
+- Exportación de datos de clientes (CSV, PDF)
+- Historial completo de interacciones
+- Gestión de documentos y archivos por cliente
+- Notas privadas del terapeuta con historial
+- Sistema de mensajería integrado
+- Seguimiento de progreso de tratamiento
+- Gestión de pagos y facturación
+- Sistema de etiquetas y categorización
+- Estadísticas y métricas por cliente
+
+SEGURIDAD Y PRIVACIDAD:
+
+- Implementa validación de consentimiento para acceso a datos
+- Usa encriptación automática para datos sensibles
+- Implementa auditoría de accesos y modificaciones
+- Maneja niveles de confidencialidad apropiados
+- Valida permisos antes de mostrar información
+- Cumple con GDPR y normativas de privacidad
+
+VALIDACIONES REQUERIDAS:
+
+- Verificar existencia de cliente antes de operaciones
+- Validar formato de datos de contacto
+- Comprobar dependencias antes de eliminar
+- Verificar permisos de acceso por rol
+- Validar integridad de datos relacionados
+
+Por favor, mantén la interfaz de usuario existente pero implementa toda la funcionalidad con las APIs reales, asegurando una experiencia fluida y profesional.
+
+---
+
+Necesito que integres completamente las APIs existentes en la página de chat/mensajería. Actualmente la página usa hooks con datos mock y necesita conectarse con el servicio de chat real que ya está implementado con WebSocket y funcionalidades avanzadas.
+
+ARCHIVOS QUE DEBES EDITAR (incluye @ al principio de cada ruta):
+
+@src/features/chat/Chat.page.jsx
+@src/features/chat/chat.api.js
+@src/features/chat/components/ConversationsList.jsx
+@src/features/chat/components/MessagesPane.jsx
+@src/features/chat/components/MessageInput.jsx
+@src/features/chat/components/MessageBubble.jsx
+@src/features/chat/components/ChatHeader.jsx
+@src/features/chat/components/ConversationItem.jsx
+@src/features/chat/components/TypingIndicator.jsx
+@src/features/chat/components/QuickCommands.jsx
+@src/features/chat/components/ConversationsSearch.jsx
+@src/features/chat/components/ConversationsFilter.jsx
+
+SERVICIOS DISPONIBLES PARA USAR:
+- @src/services/api/chatService.js (servicio completo con WebSocket, moderación, archivos)
+- @src/services/api/clientService.js (información de clientes)
+- @src/services/api/documentService.js (adjuntos y archivos)
+- @src/services/api/notificationService.js (notificaciones de mensajes)
+
+TAREAS ESPECÍFICAS:
+
+1. **chat.api.js**:
+   - Reemplaza todas las funciones TODO con implementaciones reales
+   - Conecta con chatService para:
+     * getConversations() - listar conversaciones con filtros
+     * getMessages() - obtener mensajes paginados
+     * sendMessage() - enviar mensajes con adjuntos
+     * markAsRead() - marcar como leído
+   - Añade funciones adicionales:
+     * createConversation(), archiveConversation()
+     * uploadAttachment(), deleteMessage()
+     * reportMessage(), muteConversation()
+     * getConversationInfo(), updateTypingStatus()
+
+2. **Chat.page.jsx**:
+   - Integra completamente con chatService WebSocket
+   - Reemplaza hooks mock con conexiones API reales:
+     * useConversations() - conectar con API real
+     * useMessages() - cargar mensajes con paginación
+     * WebSocket para mensajes en tiempo real
+   - Implementa manejo de estados de conexión
+   - Conecta eventos de typing indicators con WebSocket
+   - Maneja notificaciones push y sonidos
+
+3. **ConversationsList.jsx**:
+   - Conecta useConversations hook con chatService real
+   - Implementa carga lazy de conversaciones
+   - Integra filtros avanzados (estado, fecha, tipo)
+   - Implementa búsqueda en tiempo real con debounce
+   - Conecta indicadores de estado (online, typing, etc.)
+
+4. **MessagesPane.jsx**:
+   - Conecta useMessages hook con chatService real
+   - Implementa paginación infinita de mensajes
+   - Integra con WebSocket para mensajes en tiempo real
+   - Maneja diferentes tipos de mensaje (texto, imagen, archivo, sistema)
+   - Implementa estados de entrega y lectura
+   - Conecta scroll automático inteligente
+
+5. **MessageInput.jsx**:
+   - Conecta envío de mensajes con chatService
+   - Integra subida de archivos con documentService
+   - Implementa typing indicators en tiempo real
+   - Conecta validación de contenido y moderación
+   - Implementa comandos rápidos (/recordatorio, /cita)
+   - Maneja preview de adjuntos antes de enviar
+
+6. **MessageBubble.jsx**:
+   - Integra estados de mensaje reales (enviado, entregado, leído)
+   - Conecta acciones de mensaje (reenviar, eliminar, reportar)
+   - Implementa renderizado por tipo de mensaje
+   - Maneja preview de archivos adjuntos
+   - Conecta timestamps y metadatos reales
+
+7. **ChatHeader.jsx**:
+   - Conecta con clientService para info del cliente
+   - Integra estado online/offline en tiempo real
+   - Implementa acciones de conversación (archivar, silenciar, bloquear)
+   - Conecta con bookingService para crear citas desde chat
+   - Muestra typing indicators de otros participantes
+
+8. **ConversationItem.jsx**:
+   - Conecta con datos reales de conversación
+   - Integra avatares y estados de cliente
+   - Implementa preview de último mensaje
+   - Maneja contadores de mensajes no leídos
+   - Conecta indicadores de actividad reciente
+
+9. **TypingIndicator.jsx**:
+   - Conecta completamente con WebSocket typing events
+   - Implementa animaciones fluidas
+   - Maneja múltiples usuarios escribiendo
+   - Integra timeouts automáticos
+
+10. **QuickCommands.jsx**:
+    - Conecta comandos con APIs reales:
+      * /recordatorio - crear notificación
+      * /cita - integrar con bookingService
+      * /archivo - buscar en documentService
+      * /nota - crear nota rápida
+    - Implementa autocompletado de comandos
+    - Conecta con permisos de usuario
+
+11. **ConversationsSearch.jsx y ConversationsFilter.jsx**:
+    - Conecta búsqueda con chatService search API
+    - Implementa filtros avanzados (fecha, estado, tipo de mensaje)
+    - Integra búsqueda en contenido de mensajes
+    - Implementa historial de búsquedas
+
+REQUISITOS TÉCNICOS:
+
+- Integra WebSocket para comunicación en tiempo real
+- Implementa reconexión automática en caso de desconexión
+- Maneja estados de conexión (conectado, desconectado, reconectando)
+- Implementa paginación eficiente para mensajes e historial
+- Usa debouncing para búsquedas y typing indicators
+- Implementa cache inteligente para conversaciones frecuentes
+- Maneja compresión y optimización de imágenes antes de envío
+- Implementa validación de archivos (tipo, tamaño, contenido)
+
+FUNCIONALIDADES EN TIEMPO REAL:
+
+- Mensajes instantáneos vía WebSocket
+- Typing indicators bidireccionales
+- Estados de entrega y lectura
+- Notificaciones push de nuevos mensajes
+- Indicadores de presencia (online/offline)
+- Sincronización automática entre dispositivos
+- Actualizaciones de estado de conversación
+
+GESTIÓN DE ARCHIVOS:
+
+- Subida de imágenes con preview y compresión
+- Soporte para documentos PDF, Word, etc.
+- Grabación y envío de mensajes de voz
+- Preview de archivos antes de envío
+- Gestión de cuotas de almacenamiento
+- Validación de tipos de archivo permitidos
+
+MODERACIÓN Y SEGURIDAD:
+
+- Filtrado automático de contenido inapropiado
+- Sistema de reportes de mensajes
+- Encriptación de mensajes sensibles
+- Auditoría de conversaciones terapéuticas
+- Cumplimiento con normativas de privacidad médica
+- Bloqueo temporal por comportamiento inadecuado
+
+INTEGRACIÓN CON OTROS MÓDULOS:
+
+- Crear citas directamente desde el chat
+- Compartir documentos del expediente del cliente
+- Enviar recordatorios de sesiones automáticos
+- Integrar notas de sesión con conversaciones
+- Conectar con sistema de pagos para solicitudes
+- Vincular con calendario del terapeuta
+
+EXPERIENCIA DE USUARIO:
+
+- Notificaciones sonoras configurables
+- Modo no molestar y horarios de disponibilidad
+- Búsqueda inteligente con sugerencias
+- Accesos directos de teclado
+- Interfaz responsive optimizada para móvil
+- Themes claro/oscuro según preferencias
+
+VALIDACIONES REQUERIDAS:
+
+- Verificar permisos de acceso a conversaciones
+- Validar contenido de mensajes antes del envío
+- Comprobar límites de archivos adjuntos
+- Verificar estado de la conversación antes de enviar
+- Validar horarios de disponibilidad del terapeuta
+
+Por favor, implementa una experiencia de chat moderna y profesional, manteniendo la interfaz existente pero conectando toda la funcionalidad con las APIs reales y WebSocket.
+
+---
+
+Necesito que integres completamente las APIs existentes en la página de documentos y materiales terapéuticos. Actualmente la página usa datos mock y necesita conectarse con los servicios reales para una gestión completa de archivos, recursos educativos y materiales compartidos.
+
+ARCHIVOS QUE DEBES EDITAR (incluye @ al principio de cada ruta):
+
+@src/features/documentsMaterials/DocumentsMaterials.page.jsx
+@src/features/documentsMaterials/documentsMaterials.api.js
+@src/features/documentsMaterials/hooks/useClients.js
+@src/features/documentsMaterials/components/DocsHeader.jsx
+@src/features/documentsMaterials/components/DocumentsTable.jsx
+@src/features/documentsMaterials/components/DocumentRow.jsx
+@src/features/documentsMaterials/components/UploadZone.jsx
+@src/features/documentsMaterials/components/UploadFormModal.jsx
+@src/features/documentsMaterials/components/PreviewModal.jsx
+@src/features/documentsMaterials/components/EditDocumentModal.jsx
+@src/features/documentsMaterials/components/BulkToolbar.jsx
+@src/features/documentsMaterials/components/ClientSelect.jsx
+@src/features/documentsMaterials/components/SearchBar.jsx
+@src/features/documentsMaterials/components/StorageBar.jsx
+@src/features/documentsMaterials/components/TypeChips.jsx
+
+SERVICIOS DISPONIBLES PARA USAR:
+- @src/services/api/documentService.js (gestión completa de documentos)
+- @src/services/api/clientService.js (información de clientes)
+- @src/services/utils/fileHandler.js (procesamiento de archivos)
+- @src/services/api/sessionNoteService.js (vinculación con notas)
+- @src/services/api/notificationService.js (notificaciones de compartir)
+- @src/services/utils/privacy.js (encriptación y privacidad)
+
+TAREAS ESPECÍFICAS:
+
+1. **documentsMaterials.api.js**:
+   - Reemplaza todas las funciones TODO con implementaciones reales
+   - Conecta con documentService para:
+     * getDocuments() - listar documentos con filtros avanzados
+     * uploadDocument() - subida con validación y metadatos
+     * shareDocument() - compartir con clientes específicos
+     * deleteDocument() - eliminación segura con confirmación
+   - Añade funciones adicionales:
+     * updateDocumentMetadata(), duplicateDocument()
+     * getDocumentVersions(), restoreDocumentVersion()
+     * generateDocumentPreview(), getDocumentStatistics()
+     * setDocumentPermissions(), createDocumentFromTemplate()
+
+2. **DocumentsMaterials.page.jsx**:
+   - Elimina todos los datos mock (líneas 12-56)
+   - Implementa useEffect para cargar datos reales usando las APIs
+   - Reemplaza setState con llamadas a API para:
+     * Cargar documentos paginados con filtros
+     * Gestionar subida de archivos múltiples
+     * Implementar búsqueda en tiempo real
+     * Manejar acciones masivas (compartir, eliminar, etiquetar)
+   - Implementa gestión de cuotas de almacenamiento
+   - Conecta sistema de notificaciones para cambios
+
+3. **hooks/useClients.js**:
+   - Reemplaza datos mock con clientService real
+   - Implementa búsqueda de clientes optimizada
+   - Conecta con sistema de permisos de acceso
+   - Implementa cache de clientes frecuentes
+   - Maneja filtros por estado de cliente (activo, inactivo)
+
+4. **DocsHeader.jsx**:
+   - Conecta estadísticas reales de documentos
+   - Integra información de cuota de almacenamiento
+   - Implementa filtros avanzados con la API
+   - Conecta acciones globales (exportar, sincronizar)
+
+5. **DocumentsTable.jsx y DocumentRow.jsx**:
+   - Conecta con documentService para datos reales
+   - Implementa paginación server-side eficiente
+   - Integra ordenamiento y filtros con la API
+   - Conecta acciones por documento (vista previa, editar, compartir)
+   - Implementa indicadores de estado de compartición
+   - Maneja diferentes tipos de archivo con iconos apropiados
+
+6. **UploadZone.jsx y UploadFormModal.jsx**:
+   - Conecta subida real de archivos con documentService
+   - Implementa validación de tipos y tamaños
+   - Integra detección automática de metadatos
+   - Conecta con sistema de plantillas y categorías
+   - Implementa progress tracking para subidas grandes
+   - Maneja compresión automática de imágenes
+   - Conecta con sistema de versioning
+
+7. **PreviewModal.jsx**:
+   - Conecta con documentService para generar previews
+   - Implementa viewer integrado para PDFs, imágenes, documentos
+   - Conecta reproductor para audio/video
+   - Integra anotaciones y comentarios colaborativos
+   - Implementa descarga segura con auditoría
+
+8. **EditDocumentModal.jsx**:
+   - Conecta edición de metadatos con documentService
+   - Implementa sistema de etiquetas dinámico
+   - Conecta con categorización automática
+   - Integra versionado y control de cambios
+   - Maneja permisos de edición por rol
+
+9. **BulkToolbar.jsx**:
+   - Conecta acciones masivas con APIs reales
+   - Implementa compartición masiva con múltiples clientes
+   - Conecta eliminación masiva con confirmación
+   - Integra etiquetado masivo y recategorización
+   - Implementa exportación de documentos seleccionados
+
+10. **ClientSelect.jsx**:
+    - Conecta con clientService para búsqueda en tiempo real
+    - Implementa autocompletado inteligente
+    - Integra filtros por relación terapéutica
+    - Maneja permisos de acceso por cliente
+    - Conecta con historial de documentos compartidos
+
+11. **SearchBar.jsx**:
+    - Conecta búsqueda con documentService search API
+    - Implementa búsqueda full-text en contenido de documentos
+    - Integra filtros avanzados (fecha, tipo, cliente, etiquetas)
+    - Implementa autocompletado de términos
+    - Conecta con historial de búsquedas
+
+12. **StorageBar.jsx y TypeChips.jsx**:
+    - Conecta con datos reales de uso de almacenamiento
+    - Implementa alertas de cuota próxima al límite
+    - Integra estadísticas por tipo de archivo
+    - Conecta con recomendaciones de limpieza
+    - Implementa visualización de tendencias de uso
+
+REQUISITOS TÉCNICOS:
+
+- Implementa subida de archivos con chunking para archivos grandes
+- Usa progress tracking detallado durante subidas
+- Implementa compresión automática de imágenes antes de subir
+- Maneja diferentes formatos de archivo (PDF, DOC, imagen, audio, video)
+- Implementa preview generation automático para todos los tipos
+- Usa lazy loading para listas grandes de documentos
+- Implementa cache inteligente para previews frecuentes
+- Maneja validación de virus/malware en archivos subidos
+
+GESTIÓN DE ARCHIVOS AVANZADA:
+
+- Versionado automático de documentos editados
+- Backup y restauración de versiones anteriores
+- Compresión inteligente según tipo de archivo
+- Detección automática de duplicados
+- Organización automática por contenido y metadatos
+- Sincronización con almacenamiento en la nube
+- Archivado automático de documentos antiguos
+
+CATEGORIZACIÓN Y ETIQUETADO:
+
+- Sistema de etiquetas jerárquico y personalizable
+- Categorización automática usando AI/ML
+- Plantillas predefinidas por especialidad terapéutica
+- Sugerencias inteligentes de etiquetas
+- Filtros combinados y búsqueda facetada
+- Exportación de taxonomías personalizadas
+
+COMPARTICIÓN Y COLABORACIÓN:
+
+- Compartición segura con clientes específicos
+- Control granular de permisos (ver, descargar, comentar)
+- Notificaciones automáticas de documentos compartidos
+- Expiración automática de enlaces de compartición
+- Auditoría completa de accesos y descargas
+- Colaboración en tiempo real en documentos
+
+SEGURIDAD Y PRIVACIDAD:
+
+- Encriptación automática de documentos sensibles
+- Clasificación automática de confidencialidad
+- Cumplimiento con normativas médicas (HIPAA, GDPR)
+- Auditoría completa de accesos y modificaciones
+- Backup automático y recuperación de desastres
+- Eliminación segura con múltiples pasadas
+
+INTEGRACIONES CON OTROS MÓDULOS:
+
+- Vinculación automática con notas de sesión
+- Integración con planes de tratamiento
+- Conexión con sistema de citas y calendario
+- Integración con chat para compartir archivos
+- Conexión con facturación para materiales de pago
+- Integración con sistema de evaluaciones
+
+EXPERIENCIA DE USUARIO:
+
+- Drag & drop intuitivo para subida masiva
+- Preview instantáneo sin necesidad de descarga
+- Búsqueda inteligente con autocompletado
+- Organización visual por carpetas virtuales
+- Shortcuts de teclado para acciones comunes
+- Interfaz responsive optimizada para móvil
+
+VALIDACIONES REQUERIDAS:
+
+- Verificar tipos de archivo permitidos según configuración
+- Validar tamaños máximos por tipo de archivo
+- Comprobar cuotas de almacenamiento antes de subir
+- Verificar permisos de acceso antes de mostrar documentos
+- Validar integridad de archivos después de subida
+- Verificar que los archivos no contengan malware
+
+Por favor, implementa una plataforma completa de gestión documental terapéutica, manteniendo la interfaz existente pero conectando toda la funcionalidad con las APIs reales para una experiencia profesional y segura.
+
+---
+
+Necesito que integres completamente las APIs existentes en la página de gestión de reseñas y valoraciones. Actualmente la página usa datos mock y necesita conectarse con el servicio real para una gestión profesional de feedback, moderación de contenido y análisis de satisfacción.
+
+ARCHIVOS QUE DEBES EDITAR (incluye @ al principio de cada ruta):
+
+@src/features/reviews/Reviews.page.jsx
+@src/features/reviews/reviews.api.js
+@src/features/reviews/components/KpiCards.jsx
+@src/features/reviews/components/KpiCard.jsx
+@src/features/reviews/components/ReviewsList.jsx
+@src/features/reviews/components/ReviewCard.jsx
+@src/features/reviews/components/ReplyForm.jsx
+@src/features/reviews/components/ReviewsFilter.jsx
+@src/features/reviews/components/RatingTrendChart.jsx
+@src/features/reviews/components/StarChips.jsx
+@src/features/reviews/components/SortSelect.jsx
+@src/features/reviews/components/RespondedSwitch.jsx
+
+SERVICIOS DISPONIBLES PARA USAR:
+- @src/services/api/reviewService.js (gestión completa de reseñas con moderación)
+- @src/services/api/clientService.js (información de clientes)
+- @src/services/api/sessionNoteService.js (vinculación con sesiones)
+- @src/services/api/notificationService.js (notificaciones de nuevas reseñas)
+- @src/services/utils/auditService.js (auditoría de respuestas)
+- @src/services/utils/privacy.js (anonimización y privacidad)
+
+TAREAS ESPECÍFICAS:
+
+1. **reviews.api.js**:
+   - Reemplaza todas las funciones mock con implementaciones reales
+   - Conecta con reviewService para:
+     * getReviews() - listar reseñas con filtros avanzados
+     * respondToReview() - responder a reseñas con validación
+     * getReviewsStats() - estadísticas detalladas y métricas
+     * getRatingTrend() - tendencias de calificación temporal
+   - Añade funciones adicionales:
+     * moderateReview(), flagReview(), hideReview()
+     * getReviewsByClient(), getReviewsBySession()
+     * generateReviewReport(), exportReviewsData()
+     * getReviewAnalytics(), getCompetitorComparison()
+
+2. **Reviews.page.jsx**:
+   - Integra completamente con reviewService real
+   - Reemplaza React Query con llamadas a API reales
+   - Implementa sistema de notificaciones real:
+     * Notificaciones push para nuevas reseñas
+     * Alertas para reseñas de baja calificación
+     * Recordatorios de respuestas pendientes
+   - Conecta sistema de moderación automática
+   - Implementa analytics en tiempo real
+
+3. **reviews.api.js (eliminar datos mock)**:
+   - Elimina mockReviews, mockTrendData y todas las simulaciones (líneas 1-163)
+   - Conecta con reviewService para datos reales
+   - Implementa paginación server-side
+   - Integra filtros complejos (fecha, cliente, sesión, calificación)
+   - Maneja caché inteligente para mejor rendimiento
+
+4. **KpiCards.jsx y KpiCard.jsx**:
+   - Conecta con estadísticas reales de reviewService
+   - Implementa métricas avanzadas:
+     * Satisfaction score (NPS)
+     * Response rate y tiempo promedio de respuesta
+     * Distribución de calificaciones
+     * Comparación con períodos anteriores
+   - Integra indicadores de tendencia en tiempo real
+   - Conecta con alertas de performance
+
+5. **ReviewsList.jsx y ReviewCard.jsx**:
+   - Conecta con reviewService para listado real
+   - Implementa lazy loading para listas grandes
+   - Integra moderación contextual por reseña
+   - Conecta con clientService para perfiles completos
+   - Implementa acciones masivas (responder, moderar, archivar)
+   - Maneja diferentes tipos de reseña (sesión, terapeuta, servicio)
+
+6. **ReplyForm.jsx**:
+   - Conecta respuestas con reviewService real
+   - Implementa plantillas de respuesta inteligentes
+   - Integra sugerencias automáticas basadas en contenido
+   - Conecta con sistema de aprobación de respuestas
+   - Implementa autoguardado y versioning de borradores
+   - Maneja edición de respuestas existentes
+
+7. **ReviewsFilter.jsx**:
+   - Conecta filtros con reviewService search API
+   - Implementa filtros avanzados:
+     * Por calificación, fecha, cliente, sesión
+     * Por estado de respuesta y moderación
+     * Por fuente de reseña (interna, externa)
+     * Por aspectos evaluados específicos
+   - Integra filtros guardados y personalizables
+   - Implementa filtros colaborativos por equipo
+
+8. **RatingTrendChart.jsx**:
+   - Conecta con datos reales de tendencias
+   - Implementa visualización interactiva avanzada
+   - Integra comparación con benchmarks del sector
+   - Conecta con análisis predictivo de tendencias
+   - Implementa exportación de gráficos
+   - Maneja diferentes escalas temporales (día, semana, mes, año)
+
+9. **StarChips.jsx y SortSelect.jsx**:
+   - Conecta con filtros reales de calificación
+   - Implementa ordenamiento dinámico con la API
+   - Integra contadores en tiempo real por calificación
+   - Conecta con métricas de distribución
+   - Implementa filtros rápidos y shortcuts
+
+10. **RespondedSwitch.jsx**:
+    - Conecta con estado real de respuestas
+    - Implementa filtrado en tiempo real
+    - Integra con métricas de tasa de respuesta
+    - Conecta con recordatorios automáticos
+    - Maneja estados múltiples (pendiente, respondido, escalado)
+
+REQUISITOS TÉCNICOS:
+
+- Implementa paginación eficiente para grandes volúmenes de reseñas
+- Usa React Query/TanStack Query para caché optimizado
+- Implementa actualizaciones en tiempo real vía WebSocket
+- Maneja filtros complejos con debouncing
+- Implementa exportación de datos (CSV, PDF, Excel)
+- Usa lazy loading para mejor rendimiento
+- Implementa offline support para funciones críticas
+- Maneja sincronización con plataformas externas (Google, Facebook)
+
+SISTEMA DE MODERACIÓN:
+
+- Detección automática de contenido inapropiado
+- Clasificación de reseñas por severidad y categoría
+- Workflow de aprobación para respuestas sensibles
+- Sistema de flags y reportes de la comunidad
+- Moderación proactiva usando AI/ML
+- Anonimización automática de datos sensibles
+- Cumplimiento con políticas de plataforma
+
+ANÁLISIS Y REPORTES:
+
+- Dashboard de métricas en tiempo real
+- Análisis de sentimiento automático
+- Identificación de temas recurrentes
+- Benchmarking con competidores
+- Reportes de satisfacción personalizables
+- Análisis predictivo de tendencias
+- Alertas automáticas para cambios significativos
+
+GESTIÓN DE RESPUESTAS:
+
+- Plantillas inteligentes basadas en contexto
+- Sugerencias automáticas de respuesta
+- Workflow de aprobación colaborativo
+- Versionado y historial de ediciones
+- Métricas de efectividad de respuestas
+- A/B testing de diferentes enfoques
+- Integración con knowledge base
+
+INTEGRACIONES EXTERNAS:
+
+- Sincronización con Google My Business
+- Integración con redes sociales (Facebook, Instagram)
+- Conectividad con plataformas de terceros
+- API para partners y sistemas externos
+- Widgets embebibles para sitio web
+- Integración con sistemas CRM
+- Conexión con herramientas de marketing
+
+PRIVACIDAD Y CUMPLIMIENTO:
+
+- Anonimización automática de datos personales
+- Cumplimiento con GDPR y normativas locales
+- Control de privacidad granular por reseña
+- Auditoría completa de accesos y modificaciones
+- Políticas de retención configurables
+- Encriptación de datos sensibles
+- Consentimiento explícito para uso de testimonios
+
+NOTIFICACIONES Y ALERTAS:
+
+- Notificaciones push para nuevas reseñas
+- Alertas de reseñas críticas (1-2 estrellas)
+- Recordatorios de respuestas pendientes
+- Notificaciones de cambios en tendencias
+- Alertas de moderación automática
+- Resúmenes periódicos personalizables
+- Escalation automático para casos críticos
+
+MÉTRICAS AVANZADAS:
+
+- Net Promoter Score (NPS) automático
+- Customer Satisfaction Score (CSAT)
+- Customer Effort Score (CES)
+- Análisis de correlación con otros KPIs
+- Segmentación por demografía de cliente
+- Análisis de lifetime value correlation
+- ROI de mejoras basadas en feedback
+
+EXPERIENCIA DE USUARIO:
+
+- Interfaz responsive optimizada para móvil
+- Shortcuts de teclado para acciones frecuentes
+- Búsqueda inteligente con autocompletado
+- Filtros visuales y fáciles de usar
+- Vista previa de respuestas antes de enviar
+- Modo oscuro/claro según preferencias
+- Accesibilidad completa (WCAG 2.1)
+
+VALIDACIONES REQUERIDAS:
+
+- Verificar autenticidad de reseñas
+- Validar que el cliente tuvo una sesión real
+- Comprobar límites de caracteres en respuestas
+- Verificar permisos antes de mostrar información
+- Validar contenido antes de publicar respuestas
+- Verificar políticas de moderación
+
+Por favor, implementa un sistema completo de gestión de reseñas profesional, manteniendo la interfaz existente pero conectando toda la funcionalidad con las APIs reales para una experiencia de clase mundial en gestión de feedback.
