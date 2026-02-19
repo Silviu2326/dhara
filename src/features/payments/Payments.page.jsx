@@ -79,71 +79,23 @@ export const Payments = () => {
   // Data queries
   const { data: paymentsData, isLoading: paymentsLoading, error: paymentsError } = useQuery({
     queryKey: ['payments', filters],
-    queryFn: async () => {
-      // Mock data for demonstration
-      return {
-        payments: [
-          {
-            id: 'pay_1',
-            clientName: 'Ana García',
-            amount: 50.00,
-            status: 'completed',
-            date: new Date().toISOString(),
-            method: 'credit_card',
-            description: 'Sesión de terapia individual'
-          },
-          {
-            id: 'pay_2',
-            clientName: 'Carlos Ruiz',
-            amount: 75.00,
-            status: 'pending',
-            date: new Date(Date.now() - 86400000).toISOString(),
-            method: 'bank_transfer',
-            description: 'Paquete de 3 sesiones'
-          },
-          {
-            id: 'pay_3',
-            clientName: 'María López',
-            amount: 60.00,
-            status: 'failed',
-            date: new Date(Date.now() - 172800000).toISOString(),
-            method: 'credit_card',
-            description: 'Consulta inicial'
-          }
-        ],
-        total: 3,
-        totalPages: 1
-      };
-    },
+    queryFn: () => getPayments(filters),
     keepPreviousData: true,
-    enabled: true // Always enabled for mock data
+    enabled: servicesInitialized
   });
 
   const { data: statsData, isLoading: statsLoading } = useQuery({
     queryKey: ['payment-stats'],
-    queryFn: async () => {
-      return {
-        totalRevenue: 1250.00,
-        pendingAmount: 350.00,
-        completedPayments: 45,
-        failedPayments: 2
-      };
-    },
+    queryFn: getPaymentStats,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    enabled: true
+    enabled: servicesInitialized
   });
 
   const { data: payoutData, isLoading: payoutLoading } = useQuery({
     queryKey: ['payout-data'],
-    queryFn: async () => {
-      return {
-        availableBalance: 850.00,
-        pendingBalance: 150.00,
-        nextPayoutDate: new Date(Date.now() + 604800000).toISOString()
-      };
-    },
+    queryFn: getPayoutData,
     staleTime: 2 * 60 * 1000, // 2 minutes
-    enabled: true
+    enabled: servicesInitialized
   });
 
   // Get clients for payment creation
