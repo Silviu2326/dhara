@@ -90,7 +90,7 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
     const cargarEspecialidades = async () => {
       try {
         const baseUrl =
-          import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+          import.meta.env.VITE_API_URL || "https://dharaback-production.up.railway.app/api";
         const response = await fetch(`${baseUrl}/terapias`);
         const data = await response.json();
         if (data.success) {
@@ -303,7 +303,7 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
       formData.append("titulacion", titulacion);
 
       const baseUrl =
-        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+        import.meta.env.VITE_API_URL || "https://dharaback-production.up.railway.app/api";
       const response = await fetch(
         `${baseUrl}/verification/analizar-titulacion`,
         {
@@ -416,7 +416,7 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
           const tempIds = analisisAI.map((a) => a.tempId).filter(Boolean);
           if (tempIds.length > 0) {
             await fetch(
-              `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/terapeutas/procesar-documentos`,
+              `${import.meta.env.VITE_API_URL || "https://dharaback-production.up.railway.app/api"}/terapeutas/procesar-documentos`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -437,7 +437,7 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
       // 4. Crear suscripción en Stripe con trial de 3 meses
       // Esto se hace a través del backend
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/terapeutas/suscribir`,
+        `${import.meta.env.VITE_API_URL || "https://dharaback-production.up.railway.app/api"}/terapeutas/suscribir`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

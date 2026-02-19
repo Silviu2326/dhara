@@ -10,7 +10,7 @@ export const ENVIRONMENTS = {
   get API_BASE_URL() {
     const env = this.current;
     const urls = {
-      development: 'http://localhost:5000/api',
+      development: 'https://dharaback-production.up.railway.app/api',
       staging: 'https://staging-api.dharaterapeutas.com/api',
       production: 'https://api.dharaterapeutas.com/api'
     };
@@ -32,7 +32,7 @@ export const ENVIRONMENTS = {
   get UPLOADS_BASE_URL() {
     const env = this.current;
     const urls = {
-      development: 'http://localhost:5000/uploads',
+      development: 'https://dharaback-production.up.railway.app/uploads',
       staging: 'https://staging-cdn.dharaterapeutas.com',
       production: 'https://cdn.dharaterapeutas.com'
     };

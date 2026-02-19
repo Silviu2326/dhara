@@ -85,7 +85,7 @@ const UneteModal: React.FC<UneteModalProps> = ({ isOpen, onClose }) => {
       // Enviar al backend (siempre intentar esto)
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/leads`,
+          `${import.meta.env.VITE_API_URL || "https://dharaback-production.up.railway.app/api"}/leads`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

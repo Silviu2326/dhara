@@ -26,7 +26,7 @@ const RegistroExitoso: React.FC = () => {
     const verifyRegistration = async () => {
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL || "http://localhost:5000/api"}/terapeutas/verificar-registro?session_id=${sessionId}`,
+          `${import.meta.env.VITE_API_URL || "https://dharaback-production.up.railway.app/api"}/terapeutas/verificar-registro?session_id=${sessionId}`,
         );
 
         if (!response.ok) {

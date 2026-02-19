@@ -1321,7 +1321,7 @@ export const DocumentsMaterials = () => {
       try {
         console.log("🔍 DocumentsMaterials - Making DIRECT API call");
         const directResponse = await fetch(
-          "http://localhost:5000/api/documents",
+          "https://dharaback-production.up.railway.app/api/documents",
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
