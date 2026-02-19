@@ -179,13 +179,13 @@ export const ENVIRONMENT_CONFIG = {
     ENABLE_REDUX_DEVTOOLS: true
   },
   staging: {
-    API_BASE_URL: 'https://staging-api.dharaterapeutas.com/api',
+    API_BASE_URL: 'https://dharaback-production.up.railway.app/api',
     LOG_LEVEL: 'info',
     ENABLE_MOCK_DATA: false,
     ENABLE_REDUX_DEVTOOLS: true
   },
   production: {
-    API_BASE_URL: 'https://api.dharaterapeutas.com/api',
+    API_BASE_URL: 'https://dharaback-production.up.railway.app/api',
     LOG_LEVEL: 'error',
     ENABLE_MOCK_DATA: false,
     ENABLE_REDUX_DEVTOOLS: false

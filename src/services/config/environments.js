@@ -11,8 +11,8 @@ export const ENVIRONMENTS = {
     const env = this.current;
     const urls = {
       development: 'https://dharaback-production.up.railway.app/api',
-      staging: 'https://staging-api.dharaterapeutas.com/api',
-      production: 'https://api.dharaterapeutas.com/api'
+      staging: 'https://dharaback-production.up.railway.app/api',
+      production: 'https://dharaback-production.up.railway.app/api'
     };
     return urls[env] || urls.development;
   },
