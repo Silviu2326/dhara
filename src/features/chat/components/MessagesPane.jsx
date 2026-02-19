@@ -210,7 +210,7 @@ export const MessagesPane = ({
   );
 };
 
-// Hook para gestionar mensajes
+// Hook para gestionar mensajes usando chatService
 export const useMessages = (conversationId) => {
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -225,63 +225,21 @@ export const useMessages = (conversationId) => {
       try {
         setIsLoading(true);
         setError(null);
-        
-        // Simular carga de mensajes
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Datos mock
-        const mockMessages = [
-          {
-            id: 'msg-1',
-            content: 'Hola, tengo una consulta sobre mi próxima sesión',
-            timestamp: '2024-01-15T14:30:00Z',
-            senderId: 'CL001',
-            senderName: 'Ana García',
-            isRead: true,
-            type: 'text'
-          },
-          {
-            id: 'msg-2',
-            content: 'Hola Ana, claro. ¿En qué te puedo ayudar?',
-            timestamp: '2024-01-15T14:32:00Z',
-            senderId: 'therapist',
-            senderName: 'Dr. Martínez',
-            isRead: true,
-            type: 'text'
-          },
-          {
-            id: 'msg-3',
-            content: '¿Podríamos cambiar la hora? Me surgió un compromiso laboral',
-            timestamp: '2024-01-15T14:35:00Z',
-            senderId: 'CL001',
-            senderName: 'Ana García',
-            isRead: true,
-            type: 'text'
-          },
-          {
-            id: 'msg-4',
-            content: 'Por supuesto. ¿Qué horario te vendría mejor?',
-            timestamp: '2024-01-15T14:36:00Z',
-            senderId: 'therapist',
-            senderName: 'Dr. Martínez',
-            isRead: true,
-            type: 'text'
-          },
-          {
-            id: 'msg-5',
-            content: '¿Podría ser a las 16:00 en lugar de las 14:00?',
-            timestamp: '2024-01-15T14:40:00Z',
-            senderId: 'CL001',
-            senderName: 'Ana García',
-            isRead: false,
-            type: 'text'
-          }
-        ];
-        
-        setMessages(mockMessages);
-        setHasMore(false);
+
+        // Importar chatService dinámicamente
+        const { chatService } = await import('../../../services/api/chatService');
+
+        // Cargar mensajes desde chatService
+        const response = await chatService.getMessages(conversationId, {
+          limit: 50,
+          decryptSensitiveData: true,
+        });
+
+        setMessages(response.messages || []);
+        setHasMore(response.hasMore || false);
       } catch (err) {
         setError(err.message);
+        setMessages([]);
       } finally {
         setIsLoading(false);
       }
@@ -293,22 +251,18 @@ export const useMessages = (conversationId) => {
   // Enviar mensaje
   const sendMessage = async (content, type = 'text', attachments = []) => {
     try {
-      const newMessage = {
-        id: `msg-${Date.now()}`,
+      // Importar chatService dinámicamente
+      const { chatService } = await import('../../../services/api/chatService');
+
+      const newMessage = await chatService.sendMessage({
+        conversationId,
         content,
-        timestamp: new Date().toISOString(),
-        senderId: 'therapist',
-        senderName: 'Dr. Martínez',
-        isRead: false,
         type,
         attachments
-      };
+      });
 
       setMessages(prev => [...prev, newMessage]);
-      
-      // Aquí se enviaría el mensaje al servidor
-      // await api.sendMessage(conversationId, newMessage);
-      
+
       return newMessage;
     } catch (error) {
       console.error('Error sending message:', error);
@@ -318,8 +272,8 @@ export const useMessages = (conversationId) => {
 
   // Marcar mensaje como leído
   const markAsRead = (messageId) => {
-    setMessages(prev => 
-      prev.map(msg => 
+    setMessages(prev =>
+      prev.map(msg =>
         msg.id === messageId ? { ...msg, isRead: true } : msg
       )
     );
@@ -328,14 +282,22 @@ export const useMessages = (conversationId) => {
   // Cargar más mensajes (paginación)
   const loadMore = async () => {
     if (isLoading || !hasMore) return;
-    
+
     try {
       setIsLoading(true);
-      // Simular carga de mensajes anteriores
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // En una implementación real, aquí se cargarían más mensajes
-      setHasMore(false);
+
+      // Importar chatService dinámicamente
+      const { chatService } = await import('../../../services/api/chatService');
+
+      // Cargar mensajes anteriores
+      const response = await chatService.getMessages(conversationId, {
+        limit: 50,
+        offset: messages.length,
+        decryptSensitiveData: true,
+      });
+
+      setMessages(prev => [...response.messages, ...prev]);
+      setHasMore(response.hasMore || false);
     } catch (error) {
       setError(error.message);
     } finally {

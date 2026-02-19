@@ -4,7 +4,382 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Silviu Oprescu - Software Developer</title>
-    <link rel="stylesheet" href="CurriculumSilviuOprescu.css" />
+    <style>
+      /* Estilos optimizados para PDF con colores sólidos */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html, body {
+        background-color: #0f0f23 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      body {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background-color: #0f0f23;
+        color: #ffffff;
+        line-height: 1.7;
+        min-height: 100vh;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 25px;
+      }
+
+      header {
+        text-align: center;
+        padding: 60px 20px;
+        margin-bottom: 50px;
+        position: relative;
+      }
+
+      header::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 3px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 2px;
+      }
+
+      h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 0%, #00d9ff 50%, #00ff88 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 15px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+      }
+
+      .title {
+        font-size: 1.4rem;
+        background: linear-gradient(90deg, #00d9ff, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 500;
+        margin-bottom: 30px;
+      }
+
+      .contact-info {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 25px;
+      }
+
+      .contact-info a,
+      .contact-info span {
+        color: #a1a1aa;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background-color: #1a1a2e;
+        border-radius: 50px;
+        border: 1px solid #2a2a4a;
+        font-size: 0.9rem;
+      }
+
+      section {
+        margin-bottom: 60px;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        color: #ffffff;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+      }
+
+      h2::before {
+        content: '';
+        display: inline-block;
+        width: 5px;
+        height: 35px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 3px;
+      }
+
+      h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #2a2a4a, transparent);
+      }
+
+      .about-text {
+        background-color: #1a1a2e;
+        padding: 30px;
+        border-radius: 20px;
+        border: 1px solid #2a2a4a;
+        border-left: 5px solid #a855f7;
+        font-size: 1.05rem;
+        line-height: 1.9;
+      }
+
+      .project-card {
+        background-color: #1a1a2e;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 25px;
+        border: 1px solid #2a2a4a;
+        position: relative;
+      }
+
+      .project-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px 20px 0 0;
+      }
+
+      .project-card h3 {
+        color: #00d9ff;
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+      }
+
+      .project-card p {
+        color: #a1a1aa;
+        font-size: 0.95rem;
+        line-height: 1.8;
+      }
+
+      .tech-stack {
+        margin-top: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .tech-tag {
+        background-color: #2a2a4a;
+        color: #00d9ff;
+        padding: 6px 16px;
+        border-radius: 25px;
+        font-size: 0.85rem;
+        border: 1px solid #3a3a6a;
+      }
+
+      .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+      }
+
+      .skill-category {
+        background-color: #1a1a2e;
+        border-radius: 20px;
+        padding: 25px;
+        border: 1px solid #2a2a4a;
+      }
+
+      .skill-category:nth-child(1) { border-top: 3px solid #00d9ff; }
+      .skill-category:nth-child(2) { border-top: 3px solid #00ff88; }
+      .skill-category:nth-child(3) { border-top: 3px solid #a855f7; }
+      .skill-category:nth-child(4) { border-top: 3px solid #ec4899; }
+
+      .skill-category h3 {
+        color: #ffffff;
+        margin-bottom: 20px;
+        font-size: 1.15rem;
+      }
+
+      .skill-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .skill-item {
+        background-color: #2a2a4a;
+        color: #ffffff;
+        padding: 8px 16px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        border: 1px solid #3a3a6a;
+      }
+
+      .education-item {
+        background-color: #1a1a2e;
+        padding: 25px 30px;
+        border-radius: 20px;
+        margin-bottom: 20px;
+        border: 1px solid #2a2a4a;
+        border-left: 5px solid #00ff88;
+        position: relative;
+      }
+
+      .education-item h3 {
+        color: #00d9ff;
+        margin-bottom: 8px;
+        font-size: 1.15rem;
+      }
+
+      .education-item .institution {
+        color: #00ff88;
+        font-weight: 500;
+        margin-bottom: 5px;
+      }
+
+      .education-item .date {
+        color: #a1a1aa;
+        font-size: 0.9rem;
+      }
+
+      .timeline {
+        position: relative;
+        padding-left: 40px;
+      }
+
+      .timeline::before {
+        content: '';
+        position: absolute;
+        left: 15px;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(180deg, #00d9ff, #a855f7, #ec4899);
+        border-radius: 3px;
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 35px;
+        padding: 25px 30px;
+        background-color: #1a1a2e;
+        border-radius: 20px;
+        border: 1px solid #2a2a4a;
+      }
+
+      .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -33px;
+        top: 30px;
+        width: 16px;
+        height: 16px;
+        background: #00d9ff;
+        border-radius: 50%;
+        border: 3px solid #0f0f23;
+      }
+
+      .timeline-item h3 {
+        color: #00ff88;
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+      }
+
+      .timeline-item .company {
+        color: #00d9ff;
+        font-size: 1rem;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .timeline-item .date {
+        color: #a1a1aa;
+        font-size: 0.8rem;
+        margin-bottom: 12px;
+        display: inline-block;
+        padding: 4px 12px;
+        background-color: #2a2a4a;
+        border-radius: 20px;
+      }
+
+      .timeline-item p {
+        color: #a1a1aa;
+        font-size: 0.95rem;
+        line-height: 1.7;
+      }
+
+      .aptitudes-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        list-style: none;
+      }
+
+      .aptitudes-list li {
+        background-color: #1a1a2e;
+        padding: 18px 22px;
+        border-radius: 15px;
+        border: 1px solid #2a2a4a;
+        border-left: 4px solid #a855f7;
+        font-size: 0.95rem;
+        color: #a1a1aa;
+        position: relative;
+        padding-left: 50px;
+      }
+
+      .aptitudes-list li::before {
+        content: '✓';
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #00ff88;
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+
+      @media print {
+        @page {
+          size: A4;
+          margin: 15mm;
+        }
+        
+        html, body {
+          background-color: #0f0f23 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .skills-grid,
+        .aptitudes-list {
+          grid-template-columns: 1fr;
+        }
+        
+        h1 {
+          font-size: 2.2rem;
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -42,7 +417,7 @@
 
         <div class="skills-grid">
           <div class="skill-category">
-            <h3>Frontend</h3>
+            <h3>🎨 Frontend</h3>
             <div class="skill-list">
               <span class="skill-item">React</span>
               <span class="skill-item">React Native</span>
@@ -59,7 +434,7 @@
           </div>
 
           <div class="skill-category">
-            <h3>Backend</h3>
+            <h3>⚙️ Backend</h3>
             <div class="skill-list">
               <span class="skill-item">Node.js</span>
               <span class="skill-item">Express.js</span>
@@ -76,7 +451,7 @@
           </div>
 
           <div class="skill-category">
-            <h3>Cloud y DevOps</h3>
+            <h3>☁️ Cloud y DevOps</h3>
             <div class="skill-list">
               <span class="skill-item">AWS</span>
               <span class="skill-item">Google Cloud Platform</span>
@@ -91,7 +466,7 @@
           </div>
 
           <div class="skill-category">
-            <h3>IA y Machine Learning</h3>
+            <h3>🤖 IA y Machine Learning</h3>
             <div class="skill-list">
               <span class="skill-item">TensorFlow</span>
               <span class="skill-item">PyTorch</span>
@@ -109,7 +484,7 @@
         <h2>Proyectos Destacados</h2>
 
         <div class="project-card">
-          <h3>SaaS ERP para Entrenadores y Centros Deportivos</h3>
+          <h3>⚡ SaaS ERP para Entrenadores y Centros Deportivos</h3>
           <p>
             <strong>Descripción:</strong> Plataforma integral de gestión SaaS diseñada específicamente para entrenadores personales y centros deportivos de alto rendimiento. El sistema unifica todas las operaciones del negocio en una única solución escalable.<br><br>
             <strong>Funcionalidades principales:</strong> CRM avanzado con seguimiento de clientes y métricas de progreso, генератор automático de rutinas personalizadas basado en objetivos y capacidades físicas, sistema de reservas con calendario inteligente y gestión de slots, pasarela de pagos integrada (Stripe) con suscripciones recurrentes, módulo de marketing automatizado con emails y notificaciones, y dashboard analítico con +30 KPIs visualizables.
@@ -126,7 +501,7 @@
         </div>
 
         <div class="project-card">
-          <h3>Orange - Sistema Next Best Action</h3>
+          <h3>⚡ Orange - Sistema Next Best Action</h3>
           <p>
             <strong>Descripción:</strong> Sistema predictivo empresarial implementado para la optimización de las estrategias comerciales de Orange, utilizando machine learning para determinar las mejores acciones para cada cliente.<br><br>
             <strong>Funcionalidades principales:</strong> Motor de recomendaciones en tiempo real (latencia <100ms), integración nativa con Salesforce Sales Cloud, procesamiento de +5 millones de registros de clientes, segmentación dinámica basada en comportamiento y demografía, APIs RESTful y GraphQL para consumo interno, y panel de administración para configuración de reglas de negocio.
@@ -143,7 +518,7 @@
         </div>
 
         <div class="project-card">
-          <h3>SaaS Gestión Integral de Terapeutas</h3>
+          <h3>⚡ SaaS Gestión Integral de Terapeutas</h3>
           <p>
             <strong>Descripción:</strong> Solución SaaS completa para profesionales de la salud y terapeutas, incluyendo versión web y aplicación móvil nativa. Diseñada para optimizar la gestión clínica y mejorar la experiencia del paciente.<br><br>
             <strong>Funcionalidades principales:</strong> Agenda inteligente con recordatorios automáticos (SMS/WhatsApp/Email), historial clínico digital con documentación extensible, sistema de videoconsultas integrado, portal del paciente para acceso a tratamientos y progreso, módulo de facturación con generación automática de facturas, Reporting de sesiones y métricas de negocio, y app móvil con sincronización offline.
@@ -160,7 +535,7 @@
         </div>
 
         <div class="project-card">
-          <h3>Plataforma B2B de Outbound Automatizado con IA</h3>
+          <h3>⚡ Plataforma B2B de Outbound Automatizado con IA</h3>
           <p>
             <strong>Descripción:</strong> Plataforma de generación de leads B2B que combina inteligencia artificial con automatización de marketing para maximizar la cualificación y conversión de prospectos en campañas comerciales.<br><br>
             <strong>Funcionalidades principales:</strong> Enriquecimiento automático de datos de contacto mediante APIs externas (Clearbit, Hunter), motor NLP para personalización dinámica de mensajes por industria/cargo, orquestación de campañas multicanal (Email, LinkedIn, WhatsApp), scoring inteligente de leads basado en comportamiento, analítica en tiempo real con atribución de conversiones, y panel de control con A/B testing integrado.
@@ -177,7 +552,7 @@
         </div>
 
         <div class="project-card">
-          <h3>App Móvil con Comunidad, Ecommerce y Gamificación</h3>
+          <h3>⚡ App Móvil con Comunidad, Ecommerce y Gamificación</h3>
           <p>
             <strong>Descripción:</strong> Aplicación móvil híbrida con ecosistema completo que combina red social, comercio electrónico, eventos y gamificación mediante un videojuego 3D, diseñada para crear engagement de usuarios.<br><br>
             <strong>Funcionalidades principales:</strong> Sistema de comunidad con perfiles, muros, mensajería y grupos temáticos, tienda online completa con catálogo, carrito, pasarela de pagos y gestión de inventario, sistema de eventos con RSVP, tickets y notificaciones, recomendaciones personalizadas basadas en IA (contenido/productos/usuarios), videojuego 3D interactivo con Unity que recompensa actividades en la app, y backoffice web completo para gestión de contenido y moderación.
@@ -194,7 +569,7 @@
         </div>
 
         <div class="project-card">
-          <h3>ERP Especializado para Despachos de Abogados</h3>
+          <h3>⚡ ERP Especializado para Despachos de Abogados</h3>
           <p>
             <strong>Descripción:</strong> Sistema ERP vertical para despachos de abogados y gestorías, integrando todos los procesos operativos y administrativos en una solución especializada para el sector legal.<br><br>
             <strong>Funcionalidades principales:</strong> Gestión integral de clientes y contactos con histórico de interacciones, sistema de expedientes con documentos, audiencias y plazos, facturación automática con control de honorarios y provisiones, calendario judicial integrado con alertas de plazos procesales, módulo de tareas con asignación y seguimiento, reporting financiero y de productividad por abogado/departamento, portal del cliente para seguimiento de expedientes en tiempo real, y integración con sistemas de firma digital.

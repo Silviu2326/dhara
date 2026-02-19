@@ -206,99 +206,36 @@ export const ConversationsList = ({
   );
 };
 
-// Hook personalizado para gestionar conversaciones usando clientService
+// Hook personalizado para gestionar conversaciones usando chatService
 export const useConversations = () => {
   const [conversations, setConversations] = React.useState([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState(null);
 
   React.useEffect(() => {
-    // Cargar conversaciones con clientes reales
+    // Cargar conversaciones reales desde chatService
     const loadConversations = async () => {
       try {
         setIsLoading(true);
 
-        // Importar clientService dinámicamente para evitar problemas de dependencias circulares
-        const { clientService } = await import('../../../services/api/clientService');
+        // Importar chatService dinámicamente para evitar problemas de dependencias circulares
+        const { chatService } = await import('../../../services/api/chatService');
 
-        // Obtener clientes reales
-        const clientsResponse = await clientService.getClients({
-          therapistId: '68ce20c17931a40b74af366a', // ID del terapeuta actual
-          status: 'active',
-          limit: 50
+        // Obtener conversaciones reales
+        const response = await chatService.getConversations({
+          limit: 50,
+          includeLastMessage: true,
+          decryptSensitiveData: true,
         });
 
-        console.log('💬 Loading real clients for chat:', clientsResponse);
+        console.log('💬 Loaded real conversations:', response);
 
-        // Crear conversaciones ficticias pero con clientes reales
-        const realConversations = clientsResponse.clients.map((client, index) => {
-          const conversationId = `conv-${client.id}`;
-          const hasRecentActivity = Math.random() > 0.3; // 70% probabilidad de actividad reciente
-          const unreadCount = hasRecentActivity ? Math.floor(Math.random() * 3) : 0;
-
-          const mockMessages = [
-            'Hola, tengo una consulta sobre mi próxima sesión',
-            'Gracias por la sesión de hoy, me ayudó mucho',
-            '¿Podríamos cambiar la hora de mañana?',
-            'Perfecto, nos vemos la próxima semana',
-            'Me siento mejor desde nuestras sesiones',
-            'Tengo algunas dudas sobre el ejercicio que me mandaste',
-            'Muchas gracias por todo el apoyo',
-            'Creo que estoy progresando bien',
-            '¿Podríamos hablar sobre mis últimos síntomas?',
-            'La técnica que me enseñaste está funcionando'
-          ];
-
-          return {
-            id: conversationId,
-            client: {
-              id: client.id,
-              name: client.name,
-              email: client.email,
-              phone: client.phone,
-              avatar: null,
-              isOnline: Math.random() > 0.5, // 50% online
-              status: client.status,
-              rating: client.rating,
-              tags: client.tags || [],
-              sessionsCount: client.sessionsCount || 0
-            },
-            lastMessage: hasRecentActivity ? {
-              id: `msg-${conversationId}-${Date.now()}`,
-              content: mockMessages[Math.floor(Math.random() * mockMessages.length)],
-              timestamp: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString(), // Último día
-              senderId: Math.random() > 0.6 ? client.id : 'therapist', // 60% mensajes del cliente
-              isRead: unreadCount === 0
-            } : null,
-            unreadCount,
-            nextSession: hasRecentActivity ?
-              new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString() : // Próximos 7 días
-              null,
-            isFavorite: client.rating >= 4.5,
-            isArchived: false,
-            isPriority: client.tags?.includes('urgente') || client.tags?.includes('crisis') || false,
-            therapyType: client.tags?.[0] || 'Terapia general',
-            clientNotes: client.notes || ''
-          };
-        });
-
-        // Ordenar por actividad reciente
-        const sortedConversations = realConversations.sort((a, b) => {
-          if (!a.lastMessage && !b.lastMessage) return 0;
-          if (!a.lastMessage) return 1;
-          if (!b.lastMessage) return -1;
-          return new Date(b.lastMessage.timestamp) - new Date(a.lastMessage.timestamp);
-        });
-
-        console.log('💬 Created conversations from real clients:', sortedConversations);
-        setConversations(sortedConversations);
+        // Usar las conversaciones devueltas por el servicio
+        setConversations(response.conversations || []);
 
       } catch (err) {
-        console.error('Error loading conversations with real clients:', err);
+        console.error('Error loading conversations:', err);
         setError(err.message);
-
-        // Fallback a datos mock si falla
-        console.log('💬 Falling back to mock conversations');
         setConversations([]);
       } finally {
         setIsLoading(false);

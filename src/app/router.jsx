@@ -137,10 +137,10 @@ export const AppRouter = () => {
         <Route path="reservas" element={<Bookings />} />
         <Route path="clientes" element={<Clients />} />
         <Route path="clients/:clientId" element={<ClientDetailPage />} />
-        <Route path="chat" element={<ChatScreen />} />
+        <Route path="chat" element={<Chat />} />
         <Route path="documentos-materiales" element={<DocumentsMaterials />} />
         <Route path="reseñas" element={<Reviews />} />
-        <Route path="pagos" element={<PaymentHistoryScreen />} />
+        <Route path="pagos" element={<Payments />} />
         <Route path="notificaciones" element={<Notifications />} />
         <Route path="integraciones" element={<Integrations />} />
         <Route path="centro-ayuda" element={<HelpCenter />} />

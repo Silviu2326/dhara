@@ -180,82 +180,19 @@ export const Chat = () => {
 
       console.log("💬 Loading conversations with real clients...");
 
-      // En lugar de usar chatService.getConversations (que no existe),
-      // usamos clientService para generar conversaciones como en useConversations
-      const { clientService } =
-        await import("../../services/api/clientService");
-
-      const clientsResponse = await clientService.getClients({
-        therapistId: "68ce20c17931a40b74af366a",
-        status: "active",
+      // Obtener conversaciones reales desde chatService
+      const response = await chatService.getConversations({
+        status: activeFilter === "all" ? undefined : activeFilter,
+        search: searchTerm,
         limit: 50,
+        includeLastMessage: true,
+        decryptSensitiveData: true,
       });
 
-      console.log("💬 Loaded clients for conversations:", clientsResponse);
+      console.log("💬 Loaded conversations:", response);
 
-      // Crear conversaciones usando la misma lógica que useConversations
-      const realConversations = clientsResponse.clients.map((client) => {
-        const conversationId = `conv-${client.id}`;
-        const hasRecentActivity = Math.random() > 0.3;
-        const unreadCount = hasRecentActivity
-          ? Math.floor(Math.random() * 3)
-          : 0;
-
-        const mockMessages = [
-          "Hola, tengo una consulta sobre mi próxima sesión",
-          "Gracias por la sesión de hoy, me ayudó mucho",
-          "¿Podríamos cambiar la hora de mañana?",
-          "Perfecto, nos vemos la próxima semana",
-          "Me siento mejor desde nuestras sesiones",
-          "Tengo algunas dudas sobre el ejercicio que me mandaste",
-          "Muchas gracias por todo el apoyo",
-          "Creo que estoy progresando bien",
-          "¿Podríamos hablar sobre mis últimos síntomas?",
-          "La técnica que me enseñaste está funcionando",
-        ];
-
-        return {
-          id: conversationId,
-          client: {
-            id: client.id,
-            name: client.name,
-            email: client.email,
-            phone: client.phone,
-            avatar: null,
-            isOnline: Math.random() > 0.5,
-            status: client.status,
-            rating: client.rating,
-            tags: client.tags || [],
-            sessionsCount: client.sessionsCount || 0,
-          },
-          lastMessage: hasRecentActivity
-            ? {
-                id: `msg-${conversationId}-${Date.now()}`,
-                content:
-                  mockMessages[Math.floor(Math.random() * mockMessages.length)],
-                timestamp: new Date(
-                  Date.now() - Math.random() * 24 * 60 * 60 * 1000,
-                ).toISOString(),
-                senderId: Math.random() > 0.6 ? client.id : "therapist",
-                isRead: unreadCount === 0,
-              }
-            : null,
-          unreadCount,
-          nextSession: hasRecentActivity
-            ? new Date(
-                Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000,
-              ).toISOString()
-            : null,
-          isFavorite: client.rating >= 4.5,
-          isArchived: false,
-          isPriority:
-            client.tags?.includes("urgente") ||
-            client.tags?.includes("crisis") ||
-            false,
-          therapyType: client.tags?.[0] || "Terapia general",
-          clientNotes: client.notes || "",
-        };
-      });
+      // Usar las conversaciones devueltas por el servicio
+      const realConversations = response.conversations || [];
 
       // Filtrar según el filtro activo
       let filteredConversations = realConversations;
@@ -322,103 +259,17 @@ export const Chat = () => {
 
         console.log("💬 Loading messages for conversation:", conversationId);
 
-        // Intentar usar chatService.getMessages primero
-        try {
-          const response = await chatService.getMessages(conversationId, {
-            limit: 50,
-            decryptSensitiveData: true,
-          });
+        // Cargar mensajes desde chatService
+        const response = await chatService.getMessages(conversationId, {
+          limit: 50,
+          decryptSensitiveData: true,
+        });
 
-          setMessages(response.messages || []);
-          console.log(
-            "💬 Messages loaded from chatService:",
-            response.messages?.length || 0,
-          );
-        } catch (chatServiceError) {
-          console.warn(
-            "💬 ChatService.getMessages failed, generating mock messages:",
-            chatServiceError,
-          );
-
-          // Fallback: generar mensajes mock para la conversación
-          const conversation = conversations.find(
-            (c) => c.id === conversationId,
-          );
-          const mockMessages = [];
-
-          if (conversation) {
-            // Generar algunos mensajes de ejemplo
-            const messageTemplates = [
-              {
-                senderId: conversation.client.id,
-                content: "Hola, ¿cómo está?",
-              },
-              {
-                senderId: "therapist",
-                content: "Hola, muy bien. ¿Cómo te has sentido esta semana?",
-              },
-              {
-                senderId: conversation.client.id,
-                content:
-                  "He estado practicando los ejercicios que me recomendaste",
-              },
-              {
-                senderId: "therapist",
-                content:
-                  "Excelente, me alegra saberlo. ¿Has notado algún cambio?",
-              },
-              {
-                senderId: conversation.client.id,
-                content: "Sí, me siento un poco más tranquilo",
-              },
-              {
-                senderId: "therapist",
-                content:
-                  "Eso es muy positivo. Continuemos trabajando en esa dirección.",
-              },
-            ];
-
-            messageTemplates.forEach((template, index) => {
-              mockMessages.push({
-                id: `msg-${conversationId}-${index}`,
-                conversationId,
-                senderId: template.senderId,
-                content: template.content,
-                type: chatService.messageTypes?.TEXT || "text",
-                sentAt: new Date(
-                  Date.now() -
-                    (messageTemplates.length - index) * 60 * 60 * 1000,
-                ).toISOString(),
-                status: chatService.messageStates?.READ || "read",
-                readAt: new Date(
-                  Date.now() -
-                    (messageTemplates.length - index - 1) * 60 * 60 * 1000,
-                ).toISOString(),
-              });
-            });
-
-            // Agregar el último mensaje si existe
-            if (conversation.lastMessage) {
-              mockMessages.push({
-                id: conversation.lastMessage.id,
-                conversationId,
-                senderId: conversation.lastMessage.senderId,
-                content: conversation.lastMessage.content,
-                type: chatService.messageTypes?.TEXT || "text",
-                sentAt: conversation.lastMessage.timestamp,
-                status: conversation.lastMessage.isRead
-                  ? chatService.messageStates?.READ || "read"
-                  : chatService.messageStates?.DELIVERED || "delivered",
-                readAt: conversation.lastMessage.isRead
-                  ? conversation.lastMessage.timestamp
-                  : null,
-              });
-            }
-          }
-
-          setMessages(mockMessages);
-          console.log("💬 Generated mock messages:", mockMessages.length);
-        }
+        setMessages(response.messages || []);
+        console.log(
+          "💬 Messages loaded from chatService:",
+          response.messages?.length || 0,
+        );
       } catch (error) {
         console.error("💬 Error loading messages:", error);
         setError(error);
@@ -427,7 +278,7 @@ export const Chat = () => {
         setMessagesLoading(false);
       }
     },
-    [conversations],
+    [],
   );
 
   // Event handlers para WebSocket
