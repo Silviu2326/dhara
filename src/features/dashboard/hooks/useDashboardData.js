@@ -27,7 +27,7 @@ export const useDashboardData = () => {
 
   // Función para calcular rating promedio de las estadísticas de reseñas
   const calculateAverageRatingFromStats = (stats) => {
-    if (!stats) return '4.8';
+    if (!stats) return '0';
 
     // Si viene directamente el promedio
     if (stats.averageRating !== undefined) {
@@ -52,7 +52,7 @@ export const useDashboardData = () => {
     // Si viene un array de reseñas
     if (stats.reviews && Array.isArray(stats.reviews)) {
       const total = stats.reviews.reduce((sum, review) => sum + (review.rating || 0), 0);
-      return stats.reviews.length > 0 ? (total / stats.reviews.length).toFixed(1) : '4.8';
+      return stats.reviews.length > 0 ? (total / stats.reviews.length).toFixed(1) : '0';
     }
 
     // Si viene estadísticas agregadas
@@ -60,7 +60,7 @@ export const useDashboardData = () => {
       return (stats.totalRating / stats.totalReviews).toFixed(1);
     }
 
-    return '4.8'; // Fallback
+    return '0'; // Fallback
   };
 
   // Función para procesar pagos directamente y crear datos para el gráfico
@@ -373,7 +373,7 @@ export const useDashboardData = () => {
           : 0,
         averageRating: avgRating.status === 'fulfilled'
           ? calculateAverageRatingFromStats(avgRating.value)
-          : '4.8'
+          : '0'
       };
 
       // Procesar alertas
@@ -500,7 +500,7 @@ export const useDashboardData = () => {
           monthlyIncome: '€0',
           weeklyAppointments: 0,
           unreadMessages: 0,
-          averageRating: '4.8'
+          averageRating: '0'
         },
         alerts: [],
         appointments: generateFallbackAppointments(),
