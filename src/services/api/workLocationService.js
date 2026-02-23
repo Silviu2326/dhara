@@ -453,7 +453,7 @@ class WorkLocationService {
       } = options;
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         status,
         include_schedule: includeSchedule,
         include_statistics: includeStatistics,
@@ -506,7 +506,7 @@ class WorkLocationService {
       logger.error('Failed to get therapist locations', { therapistId, error });
 
       // Si no hay therapistId válido o hay problemas de autenticación, no intentar cargar
-      if (!therapistId || therapistId === 'current_therapist_id' ||
+      if (!therapistId || therapistId === 'current_therapistId' ||
           error.response?.status === 401 || error.response?.status === 403) {
         logger.warn('Authentication issues or invalid therapist ID for work locations');
         throw new Error('Authentication required to load work locations');
@@ -736,7 +736,7 @@ class WorkLocationService {
       const response = await apiClient.patch(
         ENDPOINTS.workLocations.updatePrimary,
         {
-          therapist_id: therapistId,
+          therapistId: therapistId,
           new_primary_location_id: newPrimaryLocationId
         }
       );

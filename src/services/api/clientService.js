@@ -399,7 +399,7 @@ class ClientService {
         search: searchTerm,
         status,
         tags: tags.join(","),
-        therapist_id: therapistId,
+        therapistId: therapistId,
       };
 
       const cacheKey = `${this.cachePrefix}list_${security.generateHash(params)}`;

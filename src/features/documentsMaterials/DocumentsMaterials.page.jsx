@@ -525,6 +525,7 @@ export const DocumentsMaterials = () => {
       setError(null);
 
       const uploadedDocuments = [];
+      let apiFailed = false;
 
       // Procesar cada archivo por separado
       for (const [index, file] of uploadData.files.entries()) {
@@ -582,34 +583,15 @@ export const DocumentsMaterials = () => {
               },
             );
           } catch (apiError) {
-            // Si la API falla, guardar en localStorage
+            // Si la API falla, intentar una vez más antes de fallar
             console.log(
-              `🔍 DocumentsMaterials - API upload failed, saving to localStorage:`,
+              `🔍 DocumentsMaterials - API upload failed, trying again:`,
               apiError,
             );
-
-            // Crear documento local
-            const localDocId = `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-            uploadedDocument = {
-              id: localDocId,
-              title: documentMetadata.title || file.name.split(".")[0],
-              filename: file.name,
-              type: file.type.split("/")[0] || "file",
-              size: file.size,
-              clientId: uploadData.client?.id || null,
-              clientName: uploadData.client?.name || null,
-              clientAvatar: uploadData.client?.avatar || null,
-              sessionId: uploadData.session || null,
-              tags: documentMetadata.tags || [],
-              createdAt: new Date().toISOString(),
-              url: null, // No hay URL real porque no se subió
-              status: "local",
-              accessLevel: documentMetadata.accessLevel,
-              category: documentMetadata.category,
-              description: documentMetadata.description,
-              isShared: false,
-            };
-            fromLocalStorage = true;
+            apiFailed = true;
+            
+            // Re-lanzar el error en lugar de guardar en localStorage
+            throw new Error(`Error al subir "${file.name}": ${apiError.message || 'El servidor no está disponible'}`);
           }
 
           // Transformar respuesta para el componente

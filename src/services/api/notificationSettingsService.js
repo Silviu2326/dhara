@@ -655,7 +655,7 @@ class NotificationSettingsService {
 
       const params = {
         client_id: clientId,
-        therapist_id: therapistId
+        therapistId: therapistId
       };
 
       const response = await apiClient.get(
@@ -685,7 +685,7 @@ class NotificationSettingsService {
 
       const updatePayload = {
         client_id: clientId,
-        therapist_id: therapistId,
+        therapistId: therapistId,
         settings: settingsUpdate,
         updated_at: new Date().toISOString()
       };

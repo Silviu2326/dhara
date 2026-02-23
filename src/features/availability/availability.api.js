@@ -36,7 +36,7 @@ export const getAvailability = async (therapistId, options = {}) => {
     console.error('Error fetching availability:', error);
 
     // Si no hay therapistId válido o hay problemas de autenticación, no intentar cargar
-    if (!therapistId || therapistId === 'current_therapist_id' ||
+    if (!therapistId || therapistId === 'current_therapistId' ||
         error.response?.status === 401 || error.response?.status === 403) {
       console.warn('Authentication issues or invalid therapist ID for availability');
       throw new Error('Authentication required to load availability');
@@ -151,7 +151,7 @@ export const getBlockedTimes = async (therapistId, options = {}) => {
     console.error('Error fetching blocked times:', error);
 
     // Si no hay therapistId válido, no intentar cargar
-    if (!therapistId || therapistId === 'current_therapist_id') {
+    if (!therapistId || therapistId === 'current_therapistId') {
       console.warn('No valid therapist ID provided for blocked times');
       throw new Error('Authentication required to load blocked times');
     }
@@ -343,7 +343,7 @@ export const getExternalCalendarStatus = async (therapistId) => {
     console.error('Error getting external calendar status:', error);
 
     // Si no hay therapistId válido, no intentar cargar
-    if (!therapistId || therapistId === 'current_therapist_id') {
+    if (!therapistId || therapistId === 'current_therapistId') {
       console.warn('No valid therapist ID provided for calendar status');
       throw new Error('Authentication required to load calendar status');
     }
@@ -430,7 +430,7 @@ export const getWorkLocations = async (therapistId, options = {}) => {
     console.error('Error fetching work locations:', error);
 
     // Si no hay therapistId válido, no intentar cargar
-    if (!therapistId || therapistId === 'current_therapist_id') {
+    if (!therapistId || therapistId === 'current_therapistId') {
       console.warn('No valid therapist ID provided for work locations');
       throw new Error('Authentication required to load work locations');
     }

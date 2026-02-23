@@ -202,6 +202,17 @@ class DocumentService {
       // Crear FormData para subida
       const formData = new FormData();
       formData.append('file', file);
+      
+      // Enviar campos directamente para compatibilidad con el backend
+      formData.append('title', documentData.title || documentData.originalName);
+      formData.append('category', documentData.category || 'other');
+      formData.append('clientId', documentData.clientId || '');
+      formData.append('session', documentData.sessionId || '');
+      formData.append('tags', JSON.stringify(documentData.tags || []));
+      formData.append('visibility', documentData.accessLevel || 'therapist_only');
+      formData.append('isConfidential', String(documentData.isConfidential !== false));
+      
+      // Enviar metadata y options como JSON también para compatibilidad
       formData.append('metadata', JSON.stringify(documentData));
       formData.append('options', JSON.stringify({
         encrypt,

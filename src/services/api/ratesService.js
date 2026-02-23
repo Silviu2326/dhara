@@ -421,7 +421,7 @@ class RatesService {
       } = { ...filters, ...options };
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         service_type: serviceType,
         rate_type: rateType,
         currency,
@@ -483,7 +483,7 @@ class RatesService {
       });
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         service_type: serviceType,
         rate_type: rateType,
         effective_date: effectiveDate,
@@ -569,7 +569,7 @@ class RatesService {
       });
 
       const bulkUpdatePayload = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         adjustment_type: adjustmentType,
         adjustment_value: adjustmentValue,
         effective_date: effectiveDate || new Date().toISOString(),
@@ -773,7 +773,7 @@ class RatesService {
   async checkRateConflicts(rateData, excludeRateId = null) {
     try {
       const conflictCheckData = {
-        therapist_id: rateData.therapistId,
+        therapistId: rateData.therapistId,
         service_type: rateData.serviceType,
         rate_type: rateData.rateType,
         effective_from: rateData.effectiveFrom,

@@ -533,7 +533,7 @@ class PlanAssignmentService {
 
       const reassignmentPayload = {
         assignment_id: assignmentId,
-        new_therapist_id: reassignmentData.newTherapistId,
+        new_therapistId: reassignmentData.newTherapistId,
         reason,
         preserve_progress: preserveProgress,
         transition_date: reassignmentData.transitionDate || new Date().toISOString(),
@@ -618,7 +618,7 @@ class PlanAssignmentService {
 
       const params = {
         client_id: clientId,
-        therapist_id: therapistId,
+        therapistId: therapistId,
         plan_id: planId,
         status,
         progress_state: progressState,
