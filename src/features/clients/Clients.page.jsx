@@ -10,6 +10,7 @@ import { UploadDocModal } from "./components/UploadDocModal";
 import { DeleteClientDialog } from "./components/DeleteClientDialog";
 import { BulkActionsModal } from "./components/BulkActionsModal";
 import { CreateClientModal } from "./components/CreateClientModal";
+import { InvitationCodeModal } from "./components/InvitationCodeModal";
 import {
   downloadClientsCSV,
   downloadClientStatsCSV,
@@ -169,6 +170,11 @@ export const Clients = () => {
   const [clientToDelete, setClientToDelete] = useState(null);
   const [isBulkActionsModalOpen, setIsBulkActionsModalOpen] = useState(false);
   const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState(false);
+
+  // Invitation code modal states
+  const [isInvitationModalOpen, setIsInvitationModalOpen] = useState(false);
+  const [newlyCreatedClient, setNewlyCreatedClient] = useState(null);
+  const [invitationCode, setInvitationCode] = useState("");
 
   // Filter states
   const [filters, setFilters] = useState({
@@ -608,6 +614,77 @@ export const Clients = () => {
     }
   };
 
+  // Create new client with invitation code
+  const handleCreateClientWithInvitation = async (clientData) => {
+    try {
+      setIsLoading(true);
+
+      // Create client using client service
+      const newClient = await clientService.createClient(clientData, {
+        encryptSensitiveData: false,
+        generateConsentToken: false,
+        consentPurposes: ["therapy", "data_processing"],
+        validatePrivacy: false,
+      });
+
+      // Generate invitation code
+      const code = await clientService.generateInvitationCode(newClient.id, {
+        expiresIn: 30 * 24 * 60 * 60 * 1000, // 30 days
+        email: clientData.email,
+      });
+
+      // Transform response to component format
+      const transformedClient = {
+        id: newClient.id,
+        name: newClient.name || "Cliente",
+        email: newClient.email || "",
+        phone: newClient.phone || "",
+        avatar: newClient.avatar || null,
+        status: newClient.status || "active",
+        lastSession: null,
+        sessionsCount: 0,
+        rating: null,
+        tags: newClient.tags || [],
+        createdAt: newClient.createdAt || new Date().toISOString(),
+        age: newClient.age || null,
+        address: newClient.address || "",
+        emergencyContact: newClient.emergencyContact || null,
+        notes: newClient.notes || "",
+        paymentsCount: 0,
+        documentsCount: 0,
+        messagesCount: 0,
+        invitationCode: code.code,
+      };
+
+      // Add to local state
+      setClients((prev) => [transformedClient, ...prev]);
+
+      // Show invitation code modal
+      setNewlyCreatedClient(transformedClient);
+      setInvitationCode(code.code);
+      setIsInvitationModalOpen(true);
+
+      console.log("Cliente creado exitosamente con código de invitación:", newClient, code);
+      return newClient;
+    } catch (error) {
+      console.error("Error creating client with invitation:", error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Send invitation email
+  const handleSendInvitationEmail = async (clientId, code) => {
+    try {
+      await clientService.sendInvitationEmail(clientId, code);
+      console.log("Email de invitación enviado exitosamente");
+    } catch (error) {
+      console.error("Error sending invitation email:", error);
+      throw error;
+    }
+  };
+
   // Update client function
   const handleUpdateClient = async (clientId, updates) => {
     try {
@@ -1005,6 +1082,16 @@ export const Clients = () => {
         isOpen={isCreateClientModalOpen}
         onClose={() => setIsCreateClientModalOpen(false)}
         onCreateClient={handleCreateClient}
+        onCreateClientWithInvitation={handleCreateClientWithInvitation}
+      />
+
+      {/* Invitation Code Modal */}
+      <InvitationCodeModal
+        isOpen={isInvitationModalOpen}
+        onClose={() => setIsInvitationModalOpen(false)}
+        client={newlyCreatedClient}
+        invitationCode={invitationCode}
+        onSendEmail={handleSendInvitationEmail}
       />
     </div>
   );

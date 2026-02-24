@@ -99,7 +99,7 @@ export const DocsHeaderMobile = ({
       {/* Cliente */}
       <ClientSelect
         selectedClient={selectedClient}
-        onClientChange={onClientChange}
+        onClientSelect={onClientSelect}
         compact
       />
       

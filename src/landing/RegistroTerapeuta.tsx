@@ -9,7 +9,6 @@ import {
   Lock,
   Briefcase,
   Shield,
-  Sparkles,
   Calendar,
   CreditCard,
   Loader2,
@@ -78,6 +77,9 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
   // Términos
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false);
+
+  // Plan seleccionado
+  const [planSeleccionado, setPlanSeleccionado] = useState<"basico" | "avanzado" | "avanzado-pro">("avanzado");
 
   // Popup de verificación de documentos
   const [showVerificationPopup, setShowVerificationPopup] = useState(false);
@@ -376,41 +378,91 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
         throw new Error("Error al crear el usuario");
       }
 
-      // 2. Crear perfil de terapeuta en la base de datos
+      // 2. Crear usuario en la tabla users
       const { error: profileError } = await supabase.from("users").insert([
         {
           id: authData.user.id,
-          nombre,
-          apellidos,
           email,
-          telefono,
-          tipo_usuario: "terapeuta",
-          especialidades: especialidadesSeleccionadas,
-          titulacion,
-          numero_colegiado: numeroColegiado || null,
-          experiencia_anos: experiencia ? parseInt(experiencia) : null,
-          sobre_mi: sobreMi,
-          estado_verificacion: "pendiente",
-          plan_suscripcion: "avanzado",
-          trial_activo: true,
-          trial_fin: new Date(
-            Date.now() + 90 * 24 * 60 * 60 * 1000,
-          ).toISOString(),
-          documentos_titulacion: analisisAI.map((a) => ({
-            temp_id: a.tempId,
-            original_name: a.originalName,
-            analysis: a.aiAnalysis,
-          })),
+          name: `${nombre} ${apellidos}`,
+          supabase_id: authData.user.id,
+          verification_status: "pending",
+          role: "therapist",
+          subscription_status: planSeleccionado === "avanzado-pro" ? "active" : "trial",
+          email_verified: false,
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
         },
       ]);
 
       if (profileError) {
-        console.error("Error creating profile:", profileError);
+        console.error("Error creating user profile:", profileError);
         // No lanzamos error, el usuario puede completar el perfil después
       }
 
-      // 3. Procesar documentos de titulación temporales
+      // 2b. Crear perfil profesional en professional_profiles
+      const { error: professionalError } = await supabase
+        .from("professional_profiles")
+        .insert([
+          {
+            user_id: authData.user.id,
+            about: sobreMi,
+            therapies: especialidadesSeleccionadas,
+            specializations: especialidadesSeleccionadas.map((esp) => ({
+              name: esp,
+              verified: false,
+            })),
+            education: [
+              {
+                degree: titulacion,
+                institution: "",
+                license_number: numeroColegiado || null,
+                verified: false,
+              },
+            ],
+            experience: experiencia
+              ? [
+                  {
+                    years: experiencia,
+                    description: "",
+                  },
+                ]
+              : [],
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+        ]);
+
+      if (professionalError) {
+        console.error("Error creating professional profile:", professionalError);
+        // No lanzamos error, el usuario puede completar el perfil después
+      }
+
+      // 2c. Guardar documentos de verificación
+      if (analisisAI.length > 0) {
+        for (const doc of analisisAI) {
+          const { error: docError } = await supabase
+            .from("verification_documents")
+            .insert([
+              {
+                user_id: authData.user.id,
+                type: "degree",
+                document_number: numeroColegiado || null,
+                issuing_body: doc.aiAnalysis?.entidadEmisora || "",
+                status: doc.aiAnalysis?.esTitulacionValida ? "pending" : "pending",
+                file_url: doc.tempId || "",
+                notes: doc.aiAnalysis?.observaciones || "",
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+            ]);
+
+          if (docError) {
+            console.error("Error saving verification document:", docError);
+          }
+        }
+      }
+
+      // 3. Procesar documentos de titulación temporales (backend)
       if (analisisAI.length > 0) {
         try {
           const tempIds = analisisAI.map((a) => a.tempId).filter(Boolean);
@@ -434,8 +486,10 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
         }
       }
 
-      // 4. Crear suscripción en Stripe con trial de 3 meses
-      // Esto se hace a través del backend
+      // 4. Crear suscripción en Stripe según el plan seleccionado
+      // (Stripe manejará el trial según el plan seleccionado)
+      const trialDays = planSeleccionado === "avanzado-pro" ? 0 : 90;
+      
       const response = await fetch(
         `${import.meta.env.VITE_API_URL || "https://dharaback-production.up.railway.app/api"}/terapeutas/suscribir`,
         {
@@ -445,7 +499,8 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
             email,
             nombre: `${nombre} ${apellidos}`,
             userId: authData.user.id,
-            trialDays: 90, // 3 meses
+            plan: planSeleccionado,
+            trialDays: trialDays,
           }),
         },
       );
@@ -974,118 +1029,257 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
     </div>
   );
 
-  const renderStep3 = () => (
-    <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-      {/* Resumen del plan */}
-      <div className="bg-gradient-to-br from-[#8CA48F]/10 to-[#8CA48F]/5 p-6 rounded-2xl border border-[#8CA48F]/20">
-        <div className="flex items-center gap-3 mb-4">
-          <Sparkles className="text-[#8CA48F]" size={24} />
-          <h3 className="text-lg font-bold text-stone-800">
-            Plan Avanzado - Oferta Founder
+  const renderStep3 = () => {
+    const planes = [
+      {
+        id: "basico" as const,
+        nombre: "Plan Básico",
+        precioMensual: 19.99,
+        precioTrial: 0,
+        duracionTrial: 90,
+        descripcion: "Visibilidad en el mapa con perfil completo",
+        features: [
+          "Perfil profesional completo",
+          "Visibilidad en el mapa nacional",
+          "Reseñas verificadas",
+          "Hasta 3 servicios",
+          "Soporte por email",
+        ],
+        color: "bg-stone-100 border-stone-300",
+        badgeColor: "bg-stone-200 text-stone-700",
+      },
+      {
+        id: "avanzado" as const,
+        nombre: "Plan Avanzado",
+        precioMensual: 38.99,
+        precioTrial: 0,
+        duracionTrial: 90,
+        descripcion: "Software de gestión completo",
+        popular: true,
+        features: [
+          "Todo del Plan Básico",
+          "Agenda digital inteligente",
+          "Gestión automática de citas",
+          "Creación ilimitada de servicios",
+          "Base de datos de clientes",
+          "Chat privado integrado",
+          "Soporte prioritario",
+        ],
+        color: "bg-gradient-to-br from-[#8CA48F]/10 to-[#8CA48F]/5 border-[#8CA48F]/30",
+        badgeColor: "bg-[#8CA48F] text-white",
+      },
+      {
+        id: "avanzado-pro" as const,
+        nombre: "Plan Avanzado Pro",
+        precioMensual: 49.99,
+        precioTrial: 49.99,
+        duracionTrial: 0,
+        descripcion: "Máxima visibilidad y herramientas premium",
+        features: [
+          "Todo del Plan Avanzado",
+          "Destacado en búsquedas",
+          "Badge 'Pro' en perfil",
+          "Estadísticas avanzadas",
+          "Integración con Google Calendar",
+          "Exportación de informes",
+          "Soporte VIP 24/7",
+        ],
+        color: "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-300",
+        badgeColor: "bg-amber-500 text-white",
+      },
+    ];
+
+    return (
+      <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+        <div className="text-center mb-6">
+          <h3 className="text-lg font-semibold text-stone-800 mb-2">
+            Selecciona tu plan
           </h3>
-        </div>
-
-        <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-4xl font-bold text-[#8CA48F]">0€</span>
-          <span className="text-stone-600">/mes durante 3 meses</span>
-        </div>
-
-        <div className="bg-white/60 p-4 rounded-xl mb-4">
           <p className="text-sm text-stone-600">
-            Después del periodo de prueba:{" "}
-            <span className="font-bold text-stone-800">38,99€/mes</span>
-          </p>
-          <p className="text-xs text-stone-500 mt-1">
-            Sin permanencia. Cancela cuando quieras.
+            Los planes Básico y Avanzado incluyen <strong>3 meses gratis</strong>. El plan Avanzado Pro requiere pago inmediato.
           </p>
         </div>
 
-        <ul className="space-y-2">
-          {[
-            "Agenda digital con disponibilidad personalizada",
-            "Gestión automática de citas y reservas",
-            "Creación ilimitada de servicios y packs",
-            "Base de datos de clientes y documentos",
-            "Chat privado y seguro (adiós WhatsApp)",
-            "Reseñas verificadas de tus clientes",
-            "Visibilidad en el mapa nacional de bienestar",
-          ].map((feature, i) => (
-            <li
-              key={i}
-              className="flex items-center gap-2 text-sm text-stone-600"
+        {/* Selector de planes */}
+        <div className="space-y-4">
+          {planes.map((plan) => (
+            <div
+              key={plan.id}
+              onClick={() => setPlanSeleccionado(plan.id)}
+              className={`relative p-5 rounded-2xl border-2 cursor-pointer transition-all duration-200 ${
+                planSeleccionado === plan.id
+                  ? plan.id === "avanzado-pro"
+                    ? "border-amber-500 ring-2 ring-amber-500/20"
+                    : "border-[#8CA48F] ring-2 ring-[#8CA48F]/20"
+                  : "border-stone-200 hover:border-stone-300"
+              } ${plan.color}`}
             >
-              <Check size={16} className="text-[#8CA48F] flex-shrink-0" />
-              {feature}
-            </li>
-          ))}
-        </ul>
-      </div>
+              {plan.popular && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="px-3 py-1 bg-[#8CA48F] text-white text-xs font-semibold rounded-full">
+                    Más Popular
+                  </span>
+                </div>
+              )}
 
-      {/* Información de pago */}
-      <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-        <div className="flex items-start gap-3">
-          <CreditCard
-            className="text-blue-500 flex-shrink-0 mt-0.5"
-            size={20}
-          />
-          <div>
-            <p className="text-sm font-medium text-blue-800">
-              Pago seguro con Stripe
-            </p>
-            <p className="text-xs text-blue-600 mt-1">
-              Te pediremos los datos de tu tarjeta para verificar tu cuenta.
-              <strong>
-                {" "}
-                No se realizará ningún cargo durante los primeros 3 meses.
-              </strong>
-              Pasado este periodo, se cargarán 38,99€ mensuales automáticamente.
-            </p>
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      planSeleccionado === plan.id
+                        ? plan.id === "avanzado-pro"
+                          ? "border-amber-500 bg-amber-500"
+                          : "border-[#8CA48F] bg-[#8CA48F]"
+                        : "border-stone-300"
+                    }`}
+                  >
+                    {planSeleccionado === plan.id && (
+                      <Check size={12} className="text-white" />
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-stone-800">{plan.nombre}</h4>
+                    <p className="text-xs text-stone-600">{plan.descripcion}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {plan.duracionTrial > 0 ? (
+                    <>
+                      <div className="text-2xl font-bold text-[#8CA48F]">0€</div>
+                      <div className="text-xs text-stone-600">/mes × 3 meses</div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="text-2xl font-bold text-amber-600">{plan.precioMensual}€</div>
+                      <div className="text-xs text-stone-600">/mes</div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="ml-8">
+                {plan.duracionTrial > 0 ? (
+                  <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium ${plan.badgeColor}`}>
+                    <Calendar size={12} />
+                    3 meses de prueba gratuita
+                  </div>
+                ) : (
+                  <div className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium bg-amber-100 text-amber-700">
+                    <CreditCard size={12} />
+                    Pago inmediato requerido
+                  </div>
+                )}
+
+                <ul className="mt-3 space-y-1.5">
+                  {plan.features.slice(0, 4).map((feature, i) => (
+                    <li key={i} className="flex items-center gap-2 text-xs text-stone-600">
+                      <Check size={12} className={`flex-shrink-0 ${
+                        plan.id === "avanzado-pro" ? "text-amber-500" : "text-[#8CA48F]"
+                      }`} />
+                      {feature}
+                    </li>
+                  ))}
+                  {plan.features.length > 4 && (
+                    <li className="text-xs text-stone-500 ml-4">
+                      +{plan.features.length - 4} características más
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Información de pago según el plan seleccionado */}
+        <div className={`p-4 rounded-xl border ${
+          planSeleccionado === "avanzado-pro"
+            ? "bg-amber-50 border-amber-200"
+            : "bg-blue-50 border-blue-100"
+        }`}>
+          <div className="flex items-start gap-3">
+            <CreditCard
+              className={`flex-shrink-0 mt-0.5 ${
+                planSeleccionado === "avanzado-pro" ? "text-amber-500" : "text-blue-500"
+              }`}
+              size={20}
+            />
+            <div>
+              <p className={`text-sm font-medium ${
+                planSeleccionado === "avanzado-pro" ? "text-amber-800" : "text-blue-800"
+              }`}>
+                {planSeleccionado === "avanzado-pro"
+                  ? "Pago inmediato con Stripe"
+                  : "Pago seguro con Stripe"}
+              </p>
+              <p className={`text-xs mt-1 ${
+                planSeleccionado === "avanzado-pro" ? "text-amber-600" : "text-blue-600"
+              }`}>
+                {planSeleccionado === "avanzado-pro" ? (
+                  <>
+                    El plan Avanzado Pro requiere un pago de <strong>49,99€</strong> para activar tu cuenta inmediatamente.
+                    El cargo se realizará hoy y se renovará mensualmente.
+                  </>
+                ) : planSeleccionado === "basico" ? (
+                  <>
+                    Te pediremos los datos de tu tarjeta para verificar tu cuenta.
+                    <strong> No se realizará ningún cargo durante los primeros 3 meses.</strong>
+                    Pasado este periodo, se cargarán 19,99€ mensuales automáticamente.
+                  </>
+                ) : (
+                  <>
+                    Te pediremos los datos de tu tarjeta para verificar tu cuenta.
+                    <strong> No se realizará ningún cargo durante los primeros 3 meses.</strong>
+                    Pasado este periodo, se cargarán 38,99€ mensuales automáticamente.
+                  </>
+                )}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Términos */}
-      <div className="space-y-3">
-        <label className="flex items-start gap-3 cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={aceptaTerminos}
-            onChange={(e) => setAceptaTerminos(e.target.checked)}
-            className="mt-1 w-5 h-5 rounded border-stone-300 text-[#8CA48F] focus:ring-[#8CA48F] cursor-pointer"
-          />
-          <span className="text-sm text-stone-600 group-hover:text-stone-800 transition-colors">
-            Acepto los{" "}
-            <button
-              type="button"
-              className="text-[#8CA48F] underline hover:no-underline"
-            >
-              Términos y Condiciones
-            </button>{" "}
-            de Dhara *
-          </span>
-        </label>
+        {/* Términos */}
+        <div className="space-y-3">
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={aceptaTerminos}
+              onChange={(e) => setAceptaTerminos(e.target.checked)}
+              className="mt-1 w-5 h-5 rounded border-stone-300 text-[#8CA48F] focus:ring-[#8CA48F] cursor-pointer"
+            />
+            <span className="text-sm text-stone-600 group-hover:text-stone-800 transition-colors">
+              Acepto los{" "}
+              <button
+                type="button"
+                className="text-[#8CA48F] underline hover:no-underline"
+              >
+                Términos y Condiciones
+              </button>{" "}
+              de Dhara *
+            </span>
+          </label>
 
-        <label className="flex items-start gap-3 cursor-pointer group">
-          <input
-            type="checkbox"
-            checked={aceptaPrivacidad}
-            onChange={(e) => setAceptaPrivacidad(e.target.checked)}
-            className="mt-1 w-5 h-5 rounded border-stone-300 text-[#8CA48F] focus:ring-[#8CA48F] cursor-pointer"
-          />
-          <span className="text-sm text-stone-600 group-hover:text-stone-800 transition-colors">
-            He leído y acepto la{" "}
-            <button
-              type="button"
-              className="text-[#8CA48F] underline hover:no-underline"
-            >
-              Política de Privacidad
-            </button>{" "}
-            *
-          </span>
-        </label>
+          <label className="flex items-start gap-3 cursor-pointer group">
+            <input
+              type="checkbox"
+              checked={aceptaPrivacidad}
+              onChange={(e) => setAceptaPrivacidad(e.target.checked)}
+              className="mt-1 w-5 h-5 rounded border-stone-300 text-[#8CA48F] focus:ring-[#8CA48F] cursor-pointer"
+            />
+            <span className="text-sm text-stone-600 group-hover:text-stone-800 transition-colors">
+              He leído y acepto la{" "}
+              <button
+                type="button"
+                className="text-[#8CA48F] underline hover:no-underline"
+              >
+                Política de Privacidad
+              </button>{" "}
+              *
+            </span>
+          </label>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderConfirmacion = () => (
     <div className="text-center py-10 animate-in fade-in zoom-in-95 duration-500">
@@ -1267,7 +1461,9 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
                   ) : (
                     <>
                       <CreditCard size={18} />
-                      Completar registro
+                      {planSeleccionado === "avanzado-pro" 
+                        ? "Pagar 49,99€ y completar" 
+                        : "Completar registro"}
                     </>
                   )}
                 </button>
@@ -1284,7 +1480,7 @@ const RegistroTerapeuta: React.FC<RegistroTerapeutaProps> = () => {
           </div>
           <div className="flex items-center gap-2">
             <Calendar size={16} className="text-[#8CA48F]" />
-            <span>3 meses sin cargo</span>
+            <span>{planSeleccionado === "avanzado-pro" ? "Activación inmediata" : "3 meses sin cargo"}</span>
           </div>
           <div className="flex items-center gap-2">
             <Check size={16} className="text-[#8CA48F]" />

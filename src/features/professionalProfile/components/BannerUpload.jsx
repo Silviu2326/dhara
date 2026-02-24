@@ -62,6 +62,7 @@ export const BannerUpload = ({
         folder: `banners/${userId}`,
         fileName: fileName,
         isPublic: true,
+        onProgress: (progress) => setUploadProgress(progress),
       });
 
       if (onBannerChange) {

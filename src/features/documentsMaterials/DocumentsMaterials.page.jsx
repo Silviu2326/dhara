@@ -126,6 +126,7 @@ export const DocumentsMaterials = () => {
   const [selectedTypes, setSelectedTypes] = useState([]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [preselectedFiles, setPreselectedFiles] = useState([]);
   const [previewDocument, setPreviewDocument] = useState(null);
   const [editDocument, setEditDocument] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -516,6 +517,7 @@ export const DocumentsMaterials = () => {
   };
 
   const handleFilesSelected = (files) => {
+    setPreselectedFiles(files);
     setIsUploadModalOpen(true);
   };
 
@@ -1520,10 +1522,14 @@ export const DocumentsMaterials = () => {
         {/* Modales */}
         <UploadFormModal
           isOpen={isUploadModalOpen}
-          onClose={() => setIsUploadModalOpen(false)}
+          onClose={() => {
+            setIsUploadModalOpen(false);
+            setPreselectedFiles([]);
+          }}
           onUpload={handleUpload}
-          clients={mockClients}
+          clients={clients}
           isLoading={isLoading}
+          initialFiles={preselectedFiles}
         />
 
         <PreviewModal
@@ -1540,7 +1546,7 @@ export const DocumentsMaterials = () => {
           isOpen={!!editDocument}
           onClose={() => setEditDocument(null)}
           document={editDocument}
-          clients={mockClients}
+          clients={clients}
           onSave={handleSaveEdit}
         />
       </div>

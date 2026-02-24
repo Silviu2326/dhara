@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { XMarkIcon, UserIcon, PhoneIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, UserIcon, PhoneIcon, MapPinIcon, KeyIcon } from '@heroicons/react/24/outline';
 import { Button } from '../../../components/Button';
 
 export const CreateClientModal = ({
   isOpen,
   onClose,
-  onCreateClient
+  onCreateClient,
+  onCreateClientWithInvitation
 }) => {
   const [formData, setFormData] = useState({
     name: '',
@@ -17,7 +18,8 @@ export const CreateClientModal = ({
     emergencyContactPhone: '',
     emergencyContactRelationship: '',
     notes: '',
-    tags: []
+    tags: [],
+    generateInvitationCode: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
@@ -33,7 +35,8 @@ export const CreateClientModal = ({
       emergencyContactPhone: '',
       emergencyContactRelationship: '',
       notes: '',
-      tags: []
+      tags: [],
+      generateInvitationCode: false
     });
     setErrors({});
   };
@@ -96,10 +99,15 @@ export const CreateClientModal = ({
           relationship: formData.emergencyContactRelationship.trim()
         } : null,
         notes: formData.notes.trim(),
-        tags: formData.tags
+        tags: formData.tags,
+        generateInvitationCode: formData.generateInvitationCode
       };
 
-      await onCreateClient(clientData);
+      if (formData.generateInvitationCode && onCreateClientWithInvitation) {
+        await onCreateClientWithInvitation(clientData);
+      } else {
+        await onCreateClient(clientData);
+      }
       onClose();
     } catch (error) {
       console.error('Error creating client:', error);
@@ -249,6 +257,32 @@ export const CreateClientModal = ({
                 </div>
               </div>
 
+              {/* Código de invitación */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex items-center h-5">
+                    <input
+                      type="checkbox"
+                      id="generateInvitationCode"
+                      name="generateInvitationCode"
+                      checked={formData.generateInvitationCode}
+                      onChange={(e) => setFormData(prev => ({ ...prev, generateInvitationCode: e.target.checked }))}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label htmlFor="generateInvitationCode" className="flex items-center gap-2 text-sm font-medium text-gray-900 cursor-pointer">
+                      <KeyIcon className="h-4 w-4 text-blue-600" />
+                      Generar código de invitación
+                    </label>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Al activar esta opción, se generará un código único que podrás compartir con el cliente 
+                      para que se registre en la app de clientes y acceda a sus sesiones y documentos.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               {/* Contacto de emergencia */}
               <div>
                 <h3 className="font-medium text-gray-900 mb-4">Contacto de emergencia (opcional)</h3>
@@ -331,7 +365,10 @@ export const CreateClientModal = ({
               disabled={isSubmitting}
               loading={isSubmitting}
             >
-              {isSubmitting ? 'Creando cliente...' : 'Crear cliente'}
+              {isSubmitting 
+                ? (formData.generateInvitationCode ? 'Creando cliente y generando código...' : 'Creando cliente...')
+                : (formData.generateInvitationCode ? 'Crear cliente y generar código' : 'Crear cliente')
+              }
             </Button>
           </div>
         </form>

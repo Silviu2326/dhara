@@ -62,6 +62,7 @@ export const AvatarUpload = ({
         folder: userId,
         fileName: fileName,
         isPublic: true,
+        onProgress: (progress) => setUploadProgress(progress),
       });
 
       if (onAvatarChange) {

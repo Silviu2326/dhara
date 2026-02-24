@@ -46,6 +46,7 @@ const VideoPresentation = ({ videoData, onChange, isEditing }) => {
         folder: `videos/${userId}`,
         fileName: fileName,
         isPublic: true,
+        onProgress: (progress) => setUploadProgress(progress),
       });
 
       const newVideoData = {

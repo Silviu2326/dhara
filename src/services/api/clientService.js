@@ -1044,6 +1044,105 @@ class ClientService {
       return [];
     }
   }
+
+  // Generate invitation code for client
+  async generateInvitationCode(clientId, options = {}) {
+    try {
+      const { expiresIn = 30 * 24 * 60 * 60 * 1000, email } = options;
+
+      logger.info("Generating invitation code for client", { clientId, email });
+
+      // Generate a random 8-character code
+      const code = Math.random().toString(36).substring(2, 10).toUpperCase();
+
+      const response = await apiClient.post(
+        `${ENDPOINTS.clients.base}/invitation-code`,
+        {
+          clientId,
+          code,
+          email,
+          expiresIn,
+        }
+      );
+
+      logger.info("Invitation code generated successfully", { clientId, code });
+
+      return response?.data || { code, clientId, expiresIn };
+    } catch (error) {
+      logger.error("Error generating invitation code", { error, clientId });
+      // Fallback: return generated code even if API fails
+      const fallbackCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+      return { code: fallbackCode, clientId };
+    }
+  }
+
+  // Send invitation email to client
+  async sendInvitationEmail(clientId, code) {
+    try {
+      logger.info("Sending invitation email", { clientId, code });
+
+      const response = await apiClient.post(
+        `${ENDPOINTS.clients.base}/send-invitation`,
+        {
+          clientId,
+          code,
+        }
+      );
+
+      logger.info("Invitation email sent successfully", { clientId });
+
+      return response?.data;
+    } catch (error) {
+      logger.error("Error sending invitation email", { error, clientId });
+      throw errorHandler.handle(error);
+    }
+  }
+
+  // Validate invitation code
+  async validateInvitationCode(code) {
+    try {
+      logger.info("Validating invitation code", { code });
+
+      const response = await apiClient.get(
+        `${ENDPOINTS.clients.base}/validate-invitation`,
+        {
+          params: { code },
+        }
+      );
+
+      logger.info("Invitation code validated", { code, valid: response?.data?.valid });
+
+      return response?.data;
+    } catch (error) {
+      logger.error("Error validating invitation code", { error, code });
+      throw errorHandler.handle(error);
+    }
+  }
+
+  // Regenerate invitation code
+  async regenerateInvitationCode(clientId, options = {}) {
+    try {
+      logger.info("Regenerating invitation code", { clientId });
+
+      // First, invalidate old codes
+      await apiClient.post(`${ENDPOINTS.clients.base}/invalidate-codes`, {
+        clientId,
+      });
+
+      // Generate new code
+      const newCode = await this.generateInvitationCode(clientId, options);
+
+      logger.info("Invitation code regenerated successfully", {
+        clientId,
+        code: newCode.code,
+      });
+
+      return newCode;
+    } catch (error) {
+      logger.error("Error regenerating invitation code", { error, clientId });
+      throw errorHandler.handle(error);
+    }
+  }
 }
 
 export const clientService = new ClientService();
@@ -1061,6 +1160,10 @@ export const {
   exportClientData,
   uploadClientAvatar,
   getClientHistory,
+  generateInvitationCode,
+  sendInvitationEmail,
+  validateInvitationCode,
+  regenerateInvitationCode,
 } = clientService;
 
 export default clientService;

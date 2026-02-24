@@ -5,6 +5,11 @@
       "type": "local",
       "command": ["npx", "-y", "@playwright/mcp@latest"],
       "enabled": true
+    },
+    "supabase": {
+      "type": "local",
+      "command": ["npx", "-y", "@supabase/mcp-server@latest", "--token", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplcXF2dGxpbHRkdGJ4c2dkZWRvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTY3MDgyNywiZXhwIjoyMDg1MjQ2ODI3fQ.myM2dfSh-fnkfBdxGQNKTuJAYY-rzK96FvfLgZdUOO4"],
+      "enabled": true
     }
   }
 }

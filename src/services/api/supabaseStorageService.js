@@ -5,6 +5,7 @@ import {
 } from "../config/supabase";
 import { logger } from "../utils/logger";
 import { security } from "../utils/security";
+import { tokenManager } from "../utils/tokenManager";
 
 /**
  * Servicio de almacenamiento con Supabase Storage
@@ -29,9 +30,10 @@ class SupabaseStorageService {
 
     // Límites de tamaño (en bytes)
     this.limits = {
-      AVATAR: 2 * 1024 * 1024, // 2MB
+      AVATAR: 5 * 1024 * 1024, // 5MB (sincronizado con componentes)
       DOCUMENT: 10 * 1024 * 1024, // 10MB
       CREDENTIAL: 10 * 1024 * 1024, // 10MB
+      VIDEO: 50 * 1024 * 1024, // 50MB
     };
 
     // Tipos de archivo permitidos
@@ -134,53 +136,77 @@ class SupabaseStorageService {
    * Upload con progreso usando XMLHttpRequest
    */
   async uploadWithProgress(bucket, path, file, options, onProgress) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    try {
+      // Intentar obtener token de Supabase Auth
+      let accessToken = null;
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        accessToken = session?.access_token;
+      } catch (authError) {
+        logger.warn('No Supabase session available, trying app token');
+      }
 
-    return new Promise((resolve, reject) => {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      // Obtener URL de upload
-      const uploadUrl = `${supabase.storage.url}/object/${bucket}/${path}`;
-
-      const xhr = new XMLHttpRequest();
-
-      xhr.upload.addEventListener("progress", (event) => {
-        if (event.lengthComputable && onProgress) {
-          const percentComplete = Math.round(
-            (event.loaded / event.total) * 100,
-          );
-          onProgress(percentComplete, event);
+      // Si no hay token de Supabase, intentar con el token de la app
+      if (!accessToken) {
+        try {
+          accessToken = tokenManager.getAccessToken();
+        } catch (tokenError) {
+          logger.warn('No app token available either');
         }
-      });
+      }
 
-      xhr.addEventListener("load", async () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          const url = this.getPublicUrl(bucket, path);
-          resolve({
-            path,
-            fullPath: `${bucket}/${path}`,
-            url,
-            bucket,
-            size: file.size,
-            type: file.type,
-            uploadedAt: new Date().toISOString(),
-          });
-        } else {
-          reject(new Error(`Upload failed with status ${xhr.status}`));
+      return new Promise((resolve, reject) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        // Obtener URL de upload
+        const uploadUrl = `${supabase.storage.url}/object/${bucket}/${path}`;
+
+        const xhr = new XMLHttpRequest();
+
+        xhr.upload.addEventListener("progress", (event) => {
+          if (event.lengthComputable && onProgress) {
+            const percentComplete = Math.round(
+              (event.loaded / event.total) * 100,
+            );
+            onProgress(percentComplete, event);
+          }
+        });
+
+        xhr.addEventListener("load", async () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            const url = this.getPublicUrl(bucket, path);
+            resolve({
+              path,
+              fullPath: `${bucket}/${path}`,
+              url,
+              bucket,
+              size: file.size,
+              type: file.type,
+              uploadedAt: new Date().toISOString(),
+            });
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        });
+
+        xhr.addEventListener("error", () => {
+          reject(new Error("Upload failed"));
+        });
+
+        xhr.open("POST", uploadUrl);
+        
+        // Solo agregar header de autorización si tenemos token
+        if (accessToken) {
+          xhr.setRequestHeader("Authorization", `Bearer ${accessToken}`);
         }
+        
+        xhr.send(formData);
       });
-
-      xhr.addEventListener("error", () => {
-        reject(new Error("Upload failed"));
-      });
-
-      xhr.open("POST", uploadUrl);
-      xhr.setRequestHeader("Authorization", `Bearer ${session?.access_token}`);
-      xhr.send(formData);
-    });
+    } catch (error) {
+      logger.error('Error in uploadWithProgress:', error);
+      throw error;
+    }
   }
 
   /**
@@ -323,11 +349,27 @@ class SupabaseStorageService {
   }
 
   /**
+   * Detectar tipo de archivo y retornar límite apropiado
+   */
+  detectFileLimit(file) {
+    if (file.type.startsWith('image/')) {
+      return this.limits.AVATAR;
+    } else if (file.type.startsWith('video/')) {
+      return this.limits.VIDEO;
+    } else if (file.type.includes('pdf') || file.type.includes('document')) {
+      return this.limits.DOCUMENT;
+    }
+    return this.limits.DOCUMENT;
+  }
+
+  /**
    * Validar archivo antes de upload
    */
   validateFile(file, options = {}) {
+    // Auto-detectar límite basado en tipo de archivo si no se especifica
+    const autoLimit = this.detectFileLimit(file);
     const {
-      maxSize = this.limits.DOCUMENT,
+      maxSize = autoLimit,
       allowedTypes = this.allowedTypes.ALL,
     } = options;
 

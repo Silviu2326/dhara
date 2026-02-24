@@ -43,7 +43,7 @@ class DocumentService {
       OTHER: 'other'
     };
 
-    // Categorías de documentos
+    // Categorías de documentos (mapeadas a las del backend)
     this.documentCategories = {
       CLINICAL: 'clinical',
       ADMINISTRATIVE: 'administrative',
@@ -52,6 +52,17 @@ class DocumentService {
       PERSONAL: 'personal',
       SHARED: 'shared',
       TEMPLATE: 'template'
+    };
+
+    // Mapeo de categorías del frontend a categorías del backend
+    this.categoryMapping = {
+      'clinical': 'session_notes',
+      'administrative': 'report',
+      'legal': 'consent_form',
+      'educational': 'resource',
+      'personal': 'other',
+      'shared': 'resource',
+      'template': 'resource'
     };
 
     // Niveles de acceso
@@ -138,8 +149,8 @@ class DocumentService {
       );
     }
 
-    // Validar nombre del archivo
-    if (!/^[a-zA-Z0-9._\-\s()]+$/.test(file.name)) {
+    // Validar nombre del archivo (permitir caracteres unicode/internacionales)
+    if (!/^[\w\s\-_.()\[\]áéíóúÁÉÍÓÚñÑüÜçÇàèìòùÀÈÌÒÙâêîôûÂÊÎÔÛãõÃÕäëïöüÄËÏÖÜ]+$/.test(file.name)) {
       throw errorHandler.createValidationError(
         'File name contains invalid characters'
       );
@@ -202,7 +213,27 @@ class DocumentService {
       // Crear FormData para subida
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('metadata', JSON.stringify(documentData));
+      
+      // Enviar campos directamente como espera el backend
+      formData.append('title', metadata.title || file.name.split('.')[0]);
+      // Mapear categoría del frontend a la del backend
+      const backendCategory = this.categoryMapping[category] || 'other';
+      formData.append('category', backendCategory);
+      if (metadata.clientId) {
+        formData.append('clientId', metadata.clientId);
+      }
+      if (metadata.tags && metadata.tags.length > 0) {
+        formData.append('tags', JSON.stringify(metadata.tags));
+      }
+      formData.append('visibility', accessLevel === 'public' ? 'client_shared' : 'therapist_only');
+      formData.append('isConfidential', accessLevel === 'private' ? 'true' : 'false');
+      
+      // Opciones adicionales en metadata
+      formData.append('metadata', JSON.stringify({
+        ...documentData,
+        description: metadata.description || '',
+        sessionId: metadata.sessionId || null
+      }));
       formData.append('options', JSON.stringify({
         encrypt,
         compress,

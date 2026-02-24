@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   CloudArrowUpIcon,
   DocumentIcon,
@@ -93,11 +93,18 @@ const FilePreview = ({ file, onRemove }) => {
   );
 };
 
-export const UploadZone = ({ onFilesSelected, maxFiles = 10, className = '' }) => {
+export const UploadZone = ({ onFilesSelected, maxFiles = 10, className = '', initialFiles = [] }) => {
   const [isDragOver, setIsDragOver] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState(initialFiles);
   const [errors, setErrors] = useState([]);
   const fileInputRef = useRef(null);
+
+  // Sync with initialFiles when they change
+  useEffect(() => {
+    if (initialFiles && initialFiles.length > 0) {
+      setSelectedFiles(initialFiles);
+    }
+  }, [initialFiles]);
 
   const validateFile = (file) => {
     const errors = [];

@@ -150,7 +150,7 @@ const TagInput = ({ tags, onTagsChange }) => {
   );
 };
 
-export const UploadFormModal = ({ isOpen, onClose, onUpload }) => {
+export const UploadFormModal = ({ isOpen, onClose, onUpload, clients = [], isLoading = false, initialFiles = [] }) => {
   const [formData, setFormData] = useState({
     title: '',
     tags: [],
@@ -163,7 +163,12 @@ export const UploadFormModal = ({ isOpen, onClose, onUpload }) => {
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      // Set initial files when modal opens
+      if (initialFiles && initialFiles.length > 0) {
+        setFormData(prev => ({ ...prev, files: initialFiles }));
+      }
+    } else {
       // Reset form when modal closes
       setFormData({
         title: '',
@@ -176,7 +181,7 @@ export const UploadFormModal = ({ isOpen, onClose, onUpload }) => {
       setErrors({});
       setIsUploading(false);
     }
-  }, [isOpen]);
+  }, [isOpen, initialFiles]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -296,8 +301,9 @@ export const UploadFormModal = ({ isOpen, onClose, onUpload }) => {
             {/* Cliente */}
             <div>
               <ClientSelect
+                clients={clients}
                 selectedClient={formData.client}
-                onClientChange={(client) => handleInputChange('client', client)}
+                onClientSelect={(client) => handleInputChange('client', client)}
               />
               {errors.client && (
                 <p className="mt-1 text-sm text-red-600">{errors.client}</p>
@@ -338,6 +344,7 @@ export const UploadFormModal = ({ isOpen, onClose, onUpload }) => {
               <UploadZone
                 onFilesSelected={handleFilesSelected}
                 maxFiles={5}
+                initialFiles={formData.files}
               />
               {errors.files && (
                 <p className="mt-1 text-sm text-red-600">{errors.files}</p>

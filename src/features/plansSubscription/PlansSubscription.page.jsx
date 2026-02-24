@@ -93,13 +93,13 @@ export const PlansSubscription = () => {
       
       plansData = plansArray.map((plan) => ({
         id: plan.id || plan._id,
-        name: plan.name,
+        name: plan.name || "Sin nombre",
         type: plan.type || "general",
-        description: plan.description,
+        description: plan.description || "",
         duration: plan.duration || plan.estimatedDuration || 12,
         sessionsPerWeek: plan.sessionsPerWeek || 1,
         totalSessions: plan.totalSessions || plan.duration || 12,
-        status: plan.status,
+        status: plan.status || "active",
         createdDate:
           plan.createdAt?.split("T")[0] ||
           plan.created_date?.split("T")[0] ||
@@ -114,8 +114,8 @@ export const PlansSubscription = () => {
       const clientsArray = clientsResult.clients || clientsResult.data || [];
       clientsData = clientsArray.map((client) => ({
         id: client.id,
-        name: client.name,
-        email: client.email,
+        name: client.name || "Sin nombre",
+        email: client.email || "",
         assignedPlans: client.assignedPlans || client.assigned_plans || [],
       }));
 
@@ -135,8 +135,8 @@ export const PlansSubscription = () => {
   // Filtrar planes según búsqueda y filtros
   const filteredPlans = plans.filter((plan) => {
     const matchesSearch =
-      plan.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      plan.description.toLowerCase().includes(searchTerm.toLowerCase());
+      (plan.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+      (plan.description?.toLowerCase() || "").includes(searchTerm.toLowerCase());
     const matchesStatus =
       filterStatus === "all" || plan.status === filterStatus;
     const matchesType = filterType === "all" || plan.type === filterType;
