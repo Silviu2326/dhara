@@ -608,7 +608,7 @@ class BookingService {
       });
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         view_type: viewType, // 'day', 'week', 'month'
         date,
         include_availability: includeAvailability,
@@ -666,7 +666,7 @@ class BookingService {
       } = options;
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         date_time: dateTime,
         duration,
         location_id: locationId,
@@ -807,7 +807,7 @@ class BookingService {
       } = options;
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         date_from: dateFrom,
         date_to: dateTo,
         group_by: groupBy,
@@ -857,7 +857,7 @@ class BookingService {
       });
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         format,
         date_from: dateFrom,
         date_to: dateTo,

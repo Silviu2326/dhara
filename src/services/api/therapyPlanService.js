@@ -492,7 +492,7 @@ class TherapyPlanService {
 
       // Solo incluir parámetros que no sean null/undefined
       const params = {};
-      if (therapistId) params.therapist_id = therapistId;
+      if (therapistId) params.therapistId = therapistId;
       if (specialty) params.specialty = specialty;
       if (planType) params.plan_type = planType;
       if (status !== 'all') params.status = status;
@@ -575,7 +575,7 @@ class TherapyPlanService {
       const params = {
         specialty,
         include_private: includePrivate,
-        therapist_id: therapistId,
+        therapistId: therapistId,
         evidence_level: evidenceLevel,
         is_template: true
       };
@@ -787,7 +787,7 @@ class TherapyPlanService {
         q: searchTerm,
         fields: searchFields.join(','),
         specialty,
-        therapist_id: therapistId,
+        therapistId: therapistId,
         limit,
         exact_match: exactMatch,
         include_templates: includeTemplates

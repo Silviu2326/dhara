@@ -200,7 +200,7 @@ class AvailabilityService {
       } = options;
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         date_from: dateFrom,
         date_to: dateTo,
         location_id: locationId,
@@ -230,7 +230,7 @@ class AvailabilityService {
       logger.error('Failed to get availability', { therapistId, error });
 
       // Si no hay therapistId válido o hay problemas de conectividad/endpoints, devolver estructura vacía
-      if (!therapistId || therapistId === 'current_therapist_id' ||
+      if (!therapistId || therapistId === 'current_therapistId' ||
           error.response?.status === 401 || error.response?.status === 403 || error.response?.status === 404) {
         logger.warn('Returning empty availability due to authentication/connectivity/endpoint issues');
         return {
@@ -537,7 +537,7 @@ class AvailabilityService {
       } = options;
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         date_from: dateFrom,
         date_to: dateTo,
         exception_type: exceptionType,
@@ -560,7 +560,7 @@ class AvailabilityService {
       logger.error('Failed to get exceptions', { therapistId, error });
 
       // Si no hay therapistId válido o hay problemas de conectividad/endpoints, devolver array vacío
-      if (!therapistId || therapistId === 'current_therapist_id' ||
+      if (!therapistId || therapistId === 'current_therapistId' ||
           error.response?.status === 401 || error.response?.status === 403 || error.response?.status === 404) {
         logger.warn('Returning empty exceptions due to authentication/connectivity/endpoint issues');
         return [];
@@ -573,7 +573,7 @@ class AvailabilityService {
   async checkTimeBlockConflicts(therapistId, startTime, endTime, locationId = null, excludeBlockId = null) {
     try {
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         start_time: startTime,
         end_time: endTime,
         location_id: locationId,
@@ -595,7 +595,7 @@ class AvailabilityService {
   async checkExistingAppointments(therapistId, date, startTime = null, endTime = null) {
     try {
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         date,
         start_time: startTime,
         end_time: endTime
@@ -629,7 +629,7 @@ class AvailabilityService {
       });
 
       const syncData = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         calendar_config: calendarConfig,
         sync_direction: syncDirection,
         conflict_resolution: conflictResolution,
@@ -695,7 +695,7 @@ class AvailabilityService {
       logger.error('Failed to get external calendar status', { therapistId, error });
 
       // Si no hay therapistId válido o hay problemas de conectividad/endpoints, devolver estado desconectado
-      if (!therapistId || therapistId === 'current_therapist_id' ||
+      if (!therapistId || therapistId === 'current_therapistId' ||
           error.response?.status === 401 || error.response?.status === 403 || error.response?.status === 404) {
         logger.warn('Returning disconnected calendar status due to authentication/connectivity/endpoint issues');
         return {
@@ -721,7 +721,7 @@ class AvailabilityService {
       });
 
       const resolutionData = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         conflicts,
         resolutions,
         resolved_at: new Date().toISOString()
@@ -782,7 +782,7 @@ class AvailabilityService {
       });
 
       const params = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         date_from: dateFrom,
         date_to: dateTo,
         format,
@@ -837,7 +837,7 @@ class AvailabilityService {
       });
 
       const bulkData = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         operations,
         options: {
           validate_conflicts: validateConflicts,
@@ -998,7 +998,7 @@ class AvailabilityService {
       logger.info('Notifying schedule change', { therapistId, changeData });
 
       const notificationData = {
-        therapist_id: therapistId,
+        therapistId: therapistId,
         change_data: changeData,
         timestamp: new Date().toISOString()
       };

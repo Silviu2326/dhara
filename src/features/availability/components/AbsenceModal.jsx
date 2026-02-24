@@ -81,7 +81,7 @@ export const AbsenceModal = ({
   existingAppointments = [],
   defaultTimezone = "Europe/Madrid",
   loading = false,
-  therapistId = "current_therapist_id",
+  therapistId = "current_therapistId",
 }) => {
   const [formData, setFormData] = useState({
     type: "vacation",

@@ -260,7 +260,7 @@ export const SlotModal = ({
   defaultTimezone = "Europe/Madrid",
   loading = false,
   workLocations = [], // Ubicaciones del perfil profesional
-  therapistId = "current_therapist_id",
+  therapistId = "current_therapistId",
 }) => {
   const [formData, setFormData] = useState({
     startDate: "",

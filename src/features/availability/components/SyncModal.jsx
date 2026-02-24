@@ -177,7 +177,7 @@ export const SyncModal = ({
   onConnect,
   onDisconnect,
   loading = false,
-  therapistId = "current_therapist_id",
+  therapistId = "current_therapistId",
 }) => {
   const [syncSettings, setSyncSettings] = useState({
     syncDirection: "bidirectional", // 'import', 'export', 'bidirectional'

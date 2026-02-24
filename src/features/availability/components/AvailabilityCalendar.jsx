@@ -586,7 +586,7 @@ export const AvailabilityCalendar = ({
   timezone = "Europe/Madrid",
   loading = false,
   className = "",
-  therapistId = "current_therapist_id",
+  therapistId = "current_therapistId",
 }) => {
   console.log("🚀🚀🚀 AvailabilityCalendar RENDERED 🚀🚀🚀");
   console.log("===================================================");

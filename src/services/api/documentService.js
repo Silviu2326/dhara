@@ -214,21 +214,20 @@ class DocumentService {
       const formData = new FormData();
       formData.append('file', file);
       
-      // Enviar campos directamente como espera el backend
-      formData.append('title', metadata.title || file.name.split('.')[0]);
+      // Enviar campos directamente para compatibilidad con el backend
       // Mapear categoría del frontend a la del backend
       const backendCategory = this.categoryMapping[category] || 'other';
+      formData.append('title', metadata.title || file.name.split('.')[0]);
       formData.append('category', backendCategory);
       if (metadata.clientId) {
         formData.append('clientId', metadata.clientId);
       }
-      if (metadata.tags && metadata.tags.length > 0) {
-        formData.append('tags', JSON.stringify(metadata.tags));
-      }
+      formData.append('session', metadata.sessionId || '');
+      formData.append('tags', JSON.stringify(metadata.tags || []));
       formData.append('visibility', accessLevel === 'public' ? 'client_shared' : 'therapist_only');
       formData.append('isConfidential', accessLevel === 'private' ? 'true' : 'false');
       
-      // Opciones adicionales en metadata
+      // Enviar metadata completa como JSON para compatibilidad
       formData.append('metadata', JSON.stringify({
         ...documentData,
         description: metadata.description || '',
